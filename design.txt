@@ -1,0 +1,11 @@
+
+
+Source and object code formats are taken from
+68000 Assembly Language, Techniques for Building Programs"
+Addison Wesley, Krantz & Stanley
+
+Object code format is .PRN list file format minus source code.
+
+See chapter 9 for instruction set summary.
+
+
