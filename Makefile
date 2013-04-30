@@ -150,9 +150,10 @@ realclean: clean
 # Install all target files (binaries, libraries, docs, etc.)
 
 install: all
-	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/man/man1
+	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/man/man1
 	${INSTALL} -m 0555 asepc ${PREFIX}/bin
 	${INSTALL} -m 0555 asepc.bin ${PREFIX}/bin
+	${INSTALL} -m 0444 epc.h ${PREFIX}/include
 	${INSTALL} -m 0444 plasm.man ${MANPREFIX}/man/man1/asepc.1
 
 ############################################################################
@@ -160,5 +161,7 @@ install: all
 
 uninstall:
 	${RM} ${PREFIX}/bin/asepc
+	${RM} ${PREFIX}/bin/asepc.bin
+	${RM} ${PREFIX}/include/epc.h
 	${RM} ${MANPREFIX}/man/man1/asepc.1
 
