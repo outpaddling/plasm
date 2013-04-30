@@ -3,6 +3,9 @@
 #include <fstream>
 #include <sysexits.h>
 #include <string>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
 #include "statement.h"
 #include "symtable.h"
 #include "plasm.h"

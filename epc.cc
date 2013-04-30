@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <algorithm>
 #include <sysexits.h>
 #include <boost/regex.hpp>
 #include "statement.h"
