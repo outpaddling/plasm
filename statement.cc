@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <cctype>
+#include <inttypes.h>
 #include "statement.h"
 
 /*
@@ -195,7 +196,7 @@ void    statement :: processInitializers(string::size_type startPos)
 	switch(currentDataType)
 	{
 	    case    TYPE_BYTE:
-		sscanf(valText.c_str(), "%qi", &integer);
+		sscanf(valText.c_str(), "%"SCNu64, &integer);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(2) << integer << ' ';
@@ -205,7 +206,7 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_SHORT:
-		sscanf(valText.c_str(), "%qi", &integer);
+		sscanf(valText.c_str(), "%"SCNu64, &integer);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(4) << integer << ' ';
@@ -215,7 +216,7 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_LONG:
-		sscanf(valText.c_str(), "%qi", &integer);
+		sscanf(valText.c_str(), "%"SCNu64, &integer);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(8) << integer << ' ';
@@ -225,7 +226,7 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_QUAD:
-		sscanf(valText.c_str(), "%qi", &integer);
+		sscanf(valText.c_str(), "%"SCNu64, &integer);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(16) << integer << ' ';
