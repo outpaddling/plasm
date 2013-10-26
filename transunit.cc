@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sysexits.h>
+#include <unistd.h>
 #include "transunit.h"
 
 /***************************************************************************

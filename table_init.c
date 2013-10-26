@@ -109,4 +109,5 @@ opcodeTable.push_back(opcode("inputl", OP_INPUTL));
 opcodeTable.push_back(opcode("outputb", OP_OUTPUTB));
 opcodeTable.push_back(opcode("outputs", OP_OUTPUTS));
 opcodeTable.push_back(opcode("outputl", OP_OUTPUTL));
+opcodeTable.push_back(opcode("sleepl", OP_SLEEPL));
 opcodeTable.push_back(opcode("halt", OP_HALT));
