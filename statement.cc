@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <cctype>
-#define __STDC_FORMAT_MACROS	// OS X Snow Leopard gcc 4.2.1
+//#define __STDC_FORMAT_MACROS    // OS X Snow Leopard gcc 4.2.1 SCNu64
 #include <inttypes.h>
 #include "statement.h"
 
@@ -162,6 +162,7 @@ void    statement :: processInitializers(string::size_type startPos)
 			repeatPos;
     string              valText,
 			repeatStr;
+    char                *end;
     int                 repeat,
 			c,
 			initializers = 0;
@@ -197,7 +198,8 @@ void    statement :: processInitializers(string::size_type startPos)
 	switch(currentDataType)
 	{
 	    case    TYPE_BYTE:
-		sscanf(valText.c_str(), "%"SCNu64, &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(2) << integer << ' ';
@@ -207,7 +209,8 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_SHORT:
-		sscanf(valText.c_str(), "%"SCNu64, &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(4) << integer << ' ';
@@ -217,7 +220,8 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_LONG:
-		sscanf(valText.c_str(), "%"SCNu64, &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(8) << integer << ' ';
@@ -227,7 +231,8 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_QUAD:
-		sscanf(valText.c_str(), "%"SCNu64, &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(16) << integer << ' ';
