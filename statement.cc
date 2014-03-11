@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <cctype>
+#define __STDC_FORMAT_MACROS	// OS X Snow Leopard gcc 4.2.1
 #include <inttypes.h>
 #include "statement.h"
 
