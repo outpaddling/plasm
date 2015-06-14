@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 #include <cctype>
 //#define __STDC_FORMAT_MACROS    // OS X Snow Leopard gcc 4.2.1 SCNu64
 #include <inttypes.h>
