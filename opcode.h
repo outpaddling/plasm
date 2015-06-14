@@ -1,5 +1,5 @@
 #include <string>
-#include <cinttypes>
+#include <inttypes.h>
 
 using namespace std;
 
