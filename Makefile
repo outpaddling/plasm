@@ -147,6 +147,7 @@ realclean: clean
 install: all
 	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/man/man1
 	${INSTALL} -m 0555 ${BIN} ${PREFIX}/bin
+	${INSTALL} -m 0555 plasm ${PREFIX}/bin
 	${INSTALL} -m 0444 epc.h ${PREFIX}/include
 	${INSTALL} -m 0444 ${MAN}.man ${MANPREFIX}/man/man1/${MAN}.1
 
@@ -155,6 +156,7 @@ install: all
 
 uninstall:
 	${RM} ${PREFIX}/bin/${BIN}
+	${RM} ${PREFIX}/bin/plasm
 	${RM} ${PREFIX}/include/epc.h
 	${RM} ${MANPREFIX}/man/man1/${MAN}.1
 
