@@ -3,7 +3,8 @@
 #include <string>
 #include <algorithm>
 #include <sysexits.h>
-#include <boost/regex.hpp>
+#include <regex.h>
+//#include <boost/regex.hpp>
 #include "statement.h"
 
 using namespace std;
@@ -153,6 +154,188 @@ void statement_epc :: translateOpcode(void)
 void    statement_epc :: translateOperand(string &operand)
 
 {
+    static char const *pattern_reg_direct = "[Rr][0-9][0-5]?",
+		*pattern_reg_indirect = "\\([Rr][0-9][0-5]?\\)",
+		*pattern_auto_increment = "\\([Rr][0-9][0-5]?\\)\\+",
+		*pattern_auto_decrement = "\\-\\([Rr][0-9][0-5]?\\)",
+		*pattern_label_offset = "[a-zA-Z_][a-zA-Z0-9_]*\\([Rr][0-9][0-5]?\\)",
+		*pattern_numeric_offset = "-?([0-9]+|0x[0-9a-fA-F]+)\\([Rr][0-9][0-5]?\\)",
+		*pattern_mem_direct = "[a-zA-Z_][a-zA-Z0-9_]*",
+		*pattern_mem_indirect = "\\([a-zA-Z_][a-zA-Z0-9_]*\\)",
+		*pattern_address_of = "&[a-zA-Z_][a-zA-Z0-9_]*",
+		*pattern_immediate_int = "[0-9]+|0x[0-9a-fA-F]+",
+		*pattern_immediate_float = "[0-9]*\\.[0-9]+(e[0-9]+)?",
+		*pattern_immediate_address = "\\([0-9]+\\)|\\(0x[0-9a-fA-F]+\\)";
+    unsigned int        reg_num,
+			operandCount = statement::get_operandCount();
+    string::size_type   endLabel, endOffset;
+    regex_t     preg_reg_direct,
+		preg_reg_indirect,
+		preg_auto_increment,
+		preg_auto_decrement,
+		preg_label_offset,
+		preg_numeric_offset,
+		preg_mem_direct,
+		preg_mem_indirect,
+		preg_address_of,
+		preg_immediate_int,
+		preg_immediate_float,
+		preg_immediate_address;
+    
+    label[operandCount] = "";
+    
+    //cout << "Operand = " << operand << endl;
+    
+    regcomp(&preg_reg_direct, pattern_reg_direct, REG_EXTENDED);
+    regcomp(&preg_reg_indirect, pattern_reg_indirect, REG_EXTENDED);
+    regcomp(&preg_auto_increment, pattern_auto_increment, REG_EXTENDED);
+    regcomp(&preg_auto_decrement, pattern_auto_decrement, REG_EXTENDED);
+    regcomp(&preg_label_offset, pattern_label_offset, REG_EXTENDED);
+    regcomp(&preg_numeric_offset, pattern_numeric_offset, REG_EXTENDED);
+    regcomp(&preg_mem_direct, pattern_mem_direct, REG_EXTENDED);
+    regcomp(&preg_mem_indirect, pattern_mem_indirect, REG_EXTENDED);
+    regcomp(&preg_address_of, pattern_address_of, REG_EXTENDED);
+    regcomp(&preg_immediate_int, pattern_immediate_int, REG_EXTENDED);
+    regcomp(&preg_immediate_float, pattern_immediate_float, REG_EXTENDED);
+    regcomp(&preg_immediate_address, pattern_immediate_address, REG_EXTENDED);
+    
+    // Register direct
+    if ( regexec(&preg_reg_direct, operand.c_str(), 0, NULL, 0) )
+    {
+	sscanf(operand.c_str(), "r%d", &reg_num);
+	modeByte[operandCount] = MODE_REG_DIRECT | reg_num;
+	statement::add_to_machineCodeSize(1);
+	statement::add_to_machineCodeCols(3);
+    }
+    
+    // Register indirect
+    else if ( regexec(&preg_reg_indirect, operand.c_str(), 0, NULL, 0) )
+    {
+	sscanf(operand.c_str(), "(r%d)", &reg_num);
+	modeByte[operandCount] = MODE_REG_INDIRECT | reg_num;
+	statement::add_to_machineCodeSize(1);
+	statement::add_to_machineCodeCols(3);
+    }
+    
+    // Autoincrement
+    else if ( regexec(&preg_auto_increment, operand.c_str(), 0, NULL, 0) )
+    {
+	sscanf(operand.c_str(), "(r%d)+", &reg_num);
+	modeByte[operandCount] = MODE_AUTO_INCREMENT | reg_num;
+	statement::add_to_machineCodeSize(1);
+	statement::add_to_machineCodeCols(3);
+    }
+    
+    // Autodecrement
+    else if ( regexec(&preg_auto_decrement, operand.c_str(), 0, NULL, 0) )
+    {
+	sscanf(operand.c_str(), "-(r%d)", &reg_num);
+	modeByte[operandCount] = MODE_AUTO_DECREMENT | reg_num;
+	statement::add_to_machineCodeSize(1);
+	statement::add_to_machineCodeCols(3);
+    }
+    
+    // Numeric offset
+    else if ( regexec(&preg_label_offset, operand.c_str(), 0, NULL, 0) )
+    {
+	//cerr << "numeric offset operand = " << operand << '\n';
+	endOffset = operand.find("(");
+	//cerr << endOffset << '\n';
+	sscanf(operand.c_str(), "%i", &(operandValue[operandCount]));
+	sscanf(operand.substr(endOffset).c_str(), "(r%d)", &reg_num);
+	modeByte[operandCount] = MODE_OFFSET | reg_num;
+	statement::add_to_machineCodeSize(1 + 4);
+	statement::add_to_machineCodeCols(3 + 9);
+    }
+    
+    // Label_offset
+    else if ( regexec(&preg_numeric_offset, operand.c_str(), 0, NULL, 0) )
+    {
+	endLabel = operand.find("(");
+	label[operandCount] = operand.substr(0, endLabel);
+	sscanf(operand.substr(endLabel).c_str(), "(r%d)", &reg_num);
+	modeByte[operandCount] = MODE_OFFSET | reg_num;
+	statement::add_to_machineCodeSize(1 + 4);
+	statement::add_to_machineCodeCols(3 + 10);
+	//cout << "Offset: " << label[operandCount] << ' ' << reg_num << '\n';
+    }
+    
+    // Memory direct
+    else if ( regexec(&preg_mem_direct, operand.c_str(), 0, NULL, 0) )
+    {
+	modeByte[operandCount] = MODE_MEM_DIRECT;
+	statement::add_to_machineCodeSize(1 + 4);
+	statement::add_to_machineCodeCols(3 + 10);
+	label[operandCount] = operand;
+    }
+    
+    // Memory indirect
+    else if ( regexec(&preg_mem_indirect, operand.c_str(), 0, NULL, 0) )
+    {
+	modeByte[operandCount] = MODE_MEM_INDIRECT;
+	statement::add_to_machineCodeSize(1 + 4);
+	statement::add_to_machineCodeCols(3 + 10);
+	label[operandCount] = operand.substr(1,operand.size()-2);
+    }
+    
+    // Address of
+    else if ( regexec(&preg_address_of, operand.c_str(), 0, NULL, 0) )
+    {
+	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
+	statement::add_to_machineCodeSize(1 + 4);
+	statement::add_to_machineCodeCols(3 + 10);
+	label[operandCount] = operand.substr(1,operand.size()-1);
+    }
+    
+    // Immediate
+    else if ( regexec(&preg_immediate_int, operand.c_str(), 0, NULL, 0) )
+    {
+	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
+	statement::add_to_machineCodeSize(1 + get_dataSize());
+	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
+	sscanf(operand.c_str(), "%i", &operandValue[operandCount]);
+    }
+    
+    // Immediate
+    else if ( regexec(&preg_immediate_float, operand.c_str(), 0, NULL, 0) )
+    {
+	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
+	statement::add_to_machineCodeSize(1 + get_dataSize());
+	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
+	sscanf(operand.c_str(), "%f", (float *)&operandValue[operandCount]);
+    }
+    
+    // Immediate address
+    else if ( regexec(&preg_immediate_address, operand.c_str(), 0, NULL, 0) )
+    {
+	modeByte[operandCount] = MODE_MEM_DIRECT;
+	statement::add_to_machineCodeSize(1 + 4);
+	statement::add_to_machineCodeCols(3 + 9);
+	sscanf(operand.c_str(), "(%i)", &operandValue[operandCount]);
+	label[operandCount] = "";
+    }
+    
+    else
+	statement::add_parseStatus(STATEMENT_INVALID_OPERAND);
+
+    regfree(&preg_reg_direct);
+    regfree(&preg_reg_indirect);
+    regfree(&preg_auto_increment);
+    regfree(&preg_auto_decrement);
+    regfree(&preg_label_offset);
+    regfree(&preg_numeric_offset);
+    regfree(&preg_mem_direct);
+    regfree(&preg_mem_indirect);
+    regfree(&preg_address_of);
+    regfree(&preg_immediate_int);
+    regfree(&preg_immediate_float);
+    regfree(&preg_immediate_address);
+}
+
+#if 0
+void    statement_epc :: translateOperand(string &operand)
+
+{
     static boost::regex pattern_reg_direct("[Rr][0-9][0-5]?"),
 			pattern_reg_indirect("\\([Rr][0-9][0-5]?\\)"),
 			pattern_auto_increment("\\([Rr][0-9][0-5]?\\)\\+"),
@@ -293,6 +476,7 @@ void    statement_epc :: translateOperand(string &operand)
     else
 	statement::add_parseStatus(STATEMENT_INVALID_OPERAND);
 }
+#endif
 
 
 /***************************************************************************

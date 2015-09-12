@@ -84,7 +84,7 @@ CPP         ?= cpp
 INCLUDES    += -I${LOCALBASE}/include
 CFLAGS      += ${INCLUDES}
 CXXFLAGS    += ${INCLUDES}
-LFLAGS      += -L${LOCALBASE}/lib -lboost_regex
+# LFLAGS      += -L${LOCALBASE}/lib -lboost_regex
 
 ############################################################################
 # Assume first command in PATH.  Override with full pathnames if necessary.
