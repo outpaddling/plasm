@@ -154,18 +154,18 @@ void statement_epc :: translateOpcode(void)
 void    statement_epc :: translateOperand(string &operand)
 
 {
-    static char const *pattern_reg_direct = "[Rr][0-9][0-5]?",
-		*pattern_reg_indirect = "\\([Rr][0-9][0-5]?\\)",
-		*pattern_auto_increment = "\\([Rr][0-9][0-5]?\\)\\+",
-		*pattern_auto_decrement = "\\-\\([Rr][0-9][0-5]?\\)",
-		*pattern_label_offset = "[a-zA-Z_][a-zA-Z0-9_]*\\([Rr][0-9][0-5]?\\)",
-		*pattern_numeric_offset = "-?([0-9]+|0x[0-9a-fA-F]+)\\([Rr][0-9][0-5]?\\)",
-		*pattern_mem_direct = "[a-zA-Z_][a-zA-Z0-9_]*",
-		*pattern_mem_indirect = "\\([a-zA-Z_][a-zA-Z0-9_]*\\)",
-		*pattern_address_of = "&[a-zA-Z_][a-zA-Z0-9_]*",
-		*pattern_immediate_int = "[0-9]+|0x[0-9a-fA-F]+",
-		*pattern_immediate_float = "[0-9]*\\.[0-9]+(e[0-9]+)?",
-		*pattern_immediate_address = "\\([0-9]+\\)|\\(0x[0-9a-fA-F]+\\)";
+    static char const *pattern_reg_direct = "^[Rr][0-9][0-5]?$",
+		*pattern_reg_indirect = "^\\([Rr][0-9][0-5]?\\)$",
+		*pattern_auto_increment = "^\\([Rr][0-9][0-5]?\\)\\+$",
+		*pattern_auto_decrement = "^\\-\\([Rr][0-9][0-5]?\\)$",
+		*pattern_label_offset = "^[a-zA-Z_][a-zA-Z0-9_]*\\([Rr][0-9][0-5]?\\)$",
+		*pattern_numeric_offset = "^-?([0-9]+|0x[0-9a-fA-F]+)\\([Rr][0-9][0-5]?\\)$",
+		*pattern_mem_direct = "^[a-zA-Z_][a-zA-Z0-9_]*$",
+		*pattern_mem_indirect = "^\\([a-zA-Z_][a-zA-Z0-9_]*\\)$",
+		*pattern_address_of = "^&[a-zA-Z_][a-zA-Z0-9_]*$",
+		*pattern_immediate_int = "^[0-9]+|0x[0-9a-fA-F]+$",
+		*pattern_immediate_float = "^[0-9]*\\.[0-9]+(e[0-9]+)?$",
+		*pattern_immediate_address = "^\\([0-9]+\\)|\\(0x[0-9a-fA-F]+\\)$";
     unsigned int        reg_num,
 			operandCount = statement::get_operandCount();
     string::size_type   endLabel, endOffset;
@@ -181,10 +181,11 @@ void    statement_epc :: translateOperand(string &operand)
 		preg_immediate_int,
 		preg_immediate_float,
 		preg_immediate_address;
+    regmatch_t  matches[1];
     
     label[operandCount] = "";
     
-    //cout << "Operand = " << operand << endl;
+    //cerr << "Operand = " << operand << endl;
     
     regcomp(&preg_reg_direct, pattern_reg_direct, REG_EXTENDED);
     regcomp(&preg_reg_indirect, pattern_reg_indirect, REG_EXTENDED);
@@ -200,8 +201,9 @@ void    statement_epc :: translateOperand(string &operand)
     regcomp(&preg_immediate_address, pattern_immediate_address, REG_EXTENDED);
     
     // Register direct
-    if ( regexec(&preg_reg_direct, operand.c_str(), 0, NULL, 0) )
+    if ( regexec(&preg_reg_direct, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Reg direct\n";
 	sscanf(operand.c_str(), "r%d", &reg_num);
 	modeByte[operandCount] = MODE_REG_DIRECT | reg_num;
 	statement::add_to_machineCodeSize(1);
@@ -209,8 +211,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Register indirect
-    else if ( regexec(&preg_reg_indirect, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_reg_indirect, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Reg indirect\n";
 	sscanf(operand.c_str(), "(r%d)", &reg_num);
 	modeByte[operandCount] = MODE_REG_INDIRECT | reg_num;
 	statement::add_to_machineCodeSize(1);
@@ -218,8 +221,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Autoincrement
-    else if ( regexec(&preg_auto_increment, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_auto_increment, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Autoincrement\n";
 	sscanf(operand.c_str(), "(r%d)+", &reg_num);
 	modeByte[operandCount] = MODE_AUTO_INCREMENT | reg_num;
 	statement::add_to_machineCodeSize(1);
@@ -227,8 +231,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Autodecrement
-    else if ( regexec(&preg_auto_decrement, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_auto_decrement, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Autodecrement\n";
 	sscanf(operand.c_str(), "-(r%d)", &reg_num);
 	modeByte[operandCount] = MODE_AUTO_DECREMENT | reg_num;
 	statement::add_to_machineCodeSize(1);
@@ -236,8 +241,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Numeric offset
-    else if ( regexec(&preg_label_offset, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_label_offset, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Num offset\n";
 	//cerr << "numeric offset operand = " << operand << '\n';
 	endOffset = operand.find("(");
 	//cerr << endOffset << '\n';
@@ -249,8 +255,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Label_offset
-    else if ( regexec(&preg_numeric_offset, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_numeric_offset, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Label offset\n";
 	endLabel = operand.find("(");
 	label[operandCount] = operand.substr(0, endLabel);
 	sscanf(operand.substr(endLabel).c_str(), "(r%d)", &reg_num);
@@ -261,8 +268,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Memory direct
-    else if ( regexec(&preg_mem_direct, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_mem_direct, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Mem direct\n";
 	modeByte[operandCount] = MODE_MEM_DIRECT;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
@@ -270,8 +278,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Memory indirect
-    else if ( regexec(&preg_mem_indirect, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_mem_indirect, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Mem indirect\n";
 	modeByte[operandCount] = MODE_MEM_INDIRECT;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
@@ -279,8 +288,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Address of
-    else if ( regexec(&preg_address_of, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_address_of, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Address of\n";
 	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
@@ -288,8 +298,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Immediate
-    else if ( regexec(&preg_immediate_int, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_immediate_int, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Immediate int\n";
 	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
 	statement::add_to_machineCodeSize(1 + get_dataSize());
 	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
@@ -297,8 +308,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Immediate
-    else if ( regexec(&preg_immediate_float, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_immediate_float, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Immediate float\n";
 	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
 	statement::add_to_machineCodeSize(1 + get_dataSize());
 	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
@@ -306,8 +318,9 @@ void    statement_epc :: translateOperand(string &operand)
     }
     
     // Immediate address
-    else if ( regexec(&preg_immediate_address, operand.c_str(), 0, NULL, 0) )
+    else if ( regexec(&preg_immediate_address, operand.c_str(), 1, matches, 0) == 0 )
     {
+	//cerr << "Immediate address\n";
 	modeByte[operandCount] = MODE_MEM_DIRECT;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 9);
@@ -332,6 +345,7 @@ void    statement_epc :: translateOperand(string &operand)
     regfree(&preg_immediate_address);
 }
 
+// Boost is a huge and annoying dependency for just pattern matching
 #if 0
 void    statement_epc :: translateOperand(string &operand)
 

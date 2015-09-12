@@ -98,6 +98,7 @@ void    statement :: translateInstruction(string::size_type startPos)
 	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
     
 	// Validate operand using derived class?
+	cerr << "Translating...\n";
 	translateOperand(textOperand);
 	
 	// Next operand
