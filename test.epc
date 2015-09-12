@@ -1,4 +1,4 @@
-a  .byte   0:10
+a:  .byte   0:10
 b:  .short  5
 c:  .long   100
 d:  .quad   50

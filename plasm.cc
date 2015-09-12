@@ -67,29 +67,34 @@ int     assem(const char *prog_name, const char *filename,
     SymTable        codeSymTable;
     SymTable        dataSymTable;
     statement       *stmnt;
-    const char      *prog_base_name;
+    const char      *filename_extension;
     int             assemStatus = EX_OK;
     
     /*
      *  Statement is a base class for statements of various architectures.
      */
     
-    prog_base_name = strrchr(prog_name, '/');
-    if ( prog_base_name == NULL )
-	prog_base_name = prog_name;
-    else
-	++prog_base_name;
-    if ( strcmp(prog_base_name, "asepc.bin") == 0 )
-	stmnt = new statement_epc;
-    else if ( strcmp(prog_base_name, "as68k.bin") == 0 )
-	stmnt = new statement68k;
+    filename_extension = strrchr(filename, '.');
+    if ( filename_extension != NULL )
+    {
+	if ( strcmp(filename_extension, ".epc") == 0 )
+	    stmnt = new statement_epc;
+	else if ( strcmp(filename_extension, ".68k") == 0 )
+	    stmnt = new statement68k;
+	else
+	{
+	    cerr << "Error: Unknown language: " << filename_extension << '\n';
+	    cerr << "Supported extensions are \".epc\" and \".68k\".\n";
+	    exit(EX_USAGE);
+	}
+    }
     else
     {
-	cerr << "Error: Unknown language: " << prog_name << '\n';
-	cerr << "Invoke as as68k.bin or asepc.bin.\n";
+	cerr << "Error: filename must have an extension to indicate language.\n";
+	cerr << "Supported extensions are \".epc\" and \".68k\".\n";
 	exit(EX_USAGE);
     }
-    
+
     /*
      *  Pass1: Build symbol table, translate
      */
