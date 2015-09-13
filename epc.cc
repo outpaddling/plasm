@@ -495,6 +495,8 @@ void    statement_epc :: translateOperand(string &operand)
 
 /***************************************************************************
  * Description:
+ *  Return true if everything after start_pos is whitespace or a comment
+ *  starting with '#'.
  *
  * Arguments:
  *

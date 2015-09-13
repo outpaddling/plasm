@@ -137,7 +137,9 @@ void    statement :: processDirective(string::size_type startPos)
 	currentDataType = TYPE_FLOAT;
     else if ( textOpcode == ".double" )
 	currentDataType = TYPE_DOUBLE;
-
+    else
+	add_parseStatus(STATEMENT_INVALID_DIRECTIVE);
+    
     processInitializers(startPos);
 }
 
@@ -340,6 +342,9 @@ void    statement :: printErrors(const char *filename,
     if ( parseStatus & STATEMENT_OPERAND_COUNT )
 	cerr << "Wrong number of arguments for instruction.\n";
 
+    if ( parseStatus & STATEMENT_INVALID_DIRECTIVE )
+	cerr << "Invalid directive.\n";
+
     cerr << sourceCode << '\n';
 }
 
@@ -395,6 +400,7 @@ istream    &statement :: read(istream &infile)
 	while ( isComment(endLabel) && getline(infile, sourceCode) )
 	    endLabel = 0;
     }
+    ++sourceLines;
     return infile;
 }
 

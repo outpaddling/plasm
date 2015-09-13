@@ -110,7 +110,7 @@ int     assem(const char *prog_name, const char *filename,
 	
 	if ( stmnt->isComment(0) )
 	{
-	    //cout << "Comment: " << sourceCode << endl;
+	    //cerr << "Comment: " << stmnt->get_sourceCode() << endl;
 	    continue;
 	}
 

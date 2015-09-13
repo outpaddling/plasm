@@ -19,6 +19,7 @@ using namespace std;
 #define STATEMENT_INVALID_OPERAND       0x00000010
 #define STATEMENT_MISSING_INITIALIZER   0x00000020
 #define STATEMENT_OPERAND_COUNT         0x00000040
+#define STATEMENT_INVALID_DIRECTIVE     0x00000080
 
 #define TYPE_BYTE   1
 #define TYPE_SHORT  2
@@ -79,8 +80,8 @@ class statement
 	unsigned int    operandCount;
 	int             machineCodeCols;    // For alignment of source in list
 	int             currentDataType;    // Most recent .byte, etc. directive
-	mc_offset_t        sourceLines;        // Comments above + label + code
-	mc_offset_t        endLabel;
+	mc_offset_t     sourceLines;        // Comments above + label + code
+	mc_offset_t     endLabel;
 	
 	// Source code components
 	string          label;              // empty if no label
@@ -89,7 +90,7 @@ class statement
 	
 	// Architecture-independent machine code components
 	string          machineCode;        // Text form of MC
-	mc_offset_t        machineCodeSize;    // Size of machine code in bytes
+	mc_offset_t     machineCodeSize;    // Size of machine code in bytes
 
 	// Other machine code components stored in an architecture-dependent
 	// derived class.
