@@ -135,7 +135,7 @@ table_init.c:   epc.h
 # Remove generated files (objs and nroff output from man pages)
 
 clean:
-	rm -f ${OBJS} ${BIN} *.nr *.bin
+	rm -f ${OBJS} ${BIN} *.nr *.bin *-pp.epc
 
 # Keep backup files during normal clean, but provide an option to remove them
 realclean: clean
