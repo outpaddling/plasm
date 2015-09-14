@@ -7,7 +7,7 @@
 
 #include <vector>
 #include "opcode.h"
-#include "epc.h"
+#include "plasm-epc-bits.h"
 
 #define MACHINE_CODE_FIELD_WIDTH    40
 

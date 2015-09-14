@@ -128,8 +128,8 @@ depend:
 	    ${PRINTF} "\t\$${CXX} -c \$${CXXFLAGS} $${file}\n\n" >> Makefile.depend; \
 	done
 
-table_init.c:   epc.h
-	awk -f defs2init.awk epc.h > table_init.c
+table_init.c:   plasm-epc-bits.h
+	awk -f defs2init.awk plasm-epc-bits.h > table_init.c
 
 ############################################################################
 # Remove generated files (objs and nroff output from man pages)
@@ -148,7 +148,7 @@ install: all
 	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/man/man1
 	${INSTALL} -m 0555 ${BIN} ${PREFIX}/bin
 	${INSTALL} -m 0555 plasm ${PREFIX}/bin
-	${INSTALL} -m 0444 epc.h ${PREFIX}/include
+	${INSTALL} -m 0444 plasm-epc-bits.h ${PREFIX}/include
 	${INSTALL} -m 0444 ${MAN}.man ${MANPREFIX}/man/man1/${MAN}.1
 
 ############################################################################
@@ -157,6 +157,6 @@ install: all
 uninstall:
 	${RM} ${PREFIX}/bin/${BIN}
 	${RM} ${PREFIX}/bin/plasm
-	${RM} ${PREFIX}/include/epc.h
+	${RM} ${PREFIX}/include/plasm-epc-bits.h
 	${RM} ${MANPREFIX}/man/man1/${MAN}.1
 
