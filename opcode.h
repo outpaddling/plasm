@@ -1,4 +1,5 @@
 #include <string>
+#include <inttypes.h>
 
 using namespace std;
 

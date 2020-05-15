@@ -1,7 +1,10 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <cstring>
+#include <cstdlib>
 #include <sysexits.h>
+#include <unistd.h>
 #include "transunit.h"
 
 /***************************************************************************

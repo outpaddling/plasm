@@ -32,7 +32,7 @@ class Symbol
     private:
 	mc_offset_t    offset;
 	string      name;
-	int         type;
+	// int         type;
 };
 
 

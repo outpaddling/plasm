@@ -3,9 +3,14 @@
 #include <fstream>
 #include <sysexits.h>
 #include <string>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
 #include "statement.h"
 #include "symtable.h"
 #include "plasm.h"
+
+bool Debug = false;
 
 int     main(int argc,char *argv[])
 
@@ -13,45 +18,53 @@ int     main(int argc,char *argv[])
     ifstream        infile;
     ofstream        outfile;
     char            outfile_name[PATH_MAX+1], *p;
+    int             c;
+    
+    cerr << argc << endl;
+    for (c = 1; (c < argc) && (*argv[c] == '-'); ++c)
+    {
+	cerr << argv[c] << endl;
+	if ( strcmp(argv[c], "-d") == 0 )
+	{
+	    Debug = true;
+	    cerr << "Debug on.\n";
+	}
+    }
     
     //process_args(argc, argv);
-    switch(argc)
+    if ( argv[c] == NULL )
     {
-	case    1:
-	    return assem(argv[0], "standard-input", &cin, &cout);
-	    break;
-
-	case    2:
-	    /* Open source file */
-	    infile.open(argv[1]);
-	    if ( infile.fail() )
-	    {
-		cerr << "Failed to open " << argv[1] << ".\n";
-		return EX_UNAVAILABLE;
-	    }
-	    
-	    /* Open target file */
-	    strlcpy(outfile_name, argv[1], PATH_MAX);
-	    if ( (p = strrchr(outfile_name, '.')) != NULL )
-		strlcpy(p, ".bin", 5);
-	    else
-	    {
-		cerr << "Error: Source filename has no extension.\n"
-		    << "Should be '.epc'.\n";
-		exit(EX_USAGE);
-	    }
-	    outfile.open(outfile_name);
-	    if ( outfile.fail() )
-	    {
-		cerr << "Failed to open " << outfile_name << ".\n";
-		return EX_UNAVAILABLE;
-	    }
-
-	    /* Assemble source */
-	    return assem(argv[0], argv[1], &infile, &outfile);
+	return assem(argv[0], "standard-input", &cin, &cout);
+    }
+    else
+    {
+	/* Open source file */
+	infile.open(argv[c]);
+	if ( infile.fail() )
+	{
+	    cerr << "Failed to open " << argv[c] << ".\n";
+	    return EX_UNAVAILABLE;
+	}
 	
-	default:
-	    usage(argv);
+	/* Open target file */
+	strlcpy(outfile_name, argv[c], PATH_MAX);
+	if ( (p = strrchr(outfile_name, '.')) != NULL )
+	    strlcpy(p, ".bin", 5);
+	else
+	{
+	    cerr << "Error: Source filename has no extension.\n"
+		<< "Should be '.epc'.\n";
+	    exit(EX_USAGE);
+	}
+	outfile.open(outfile_name);
+	if ( outfile.fail() )
+	{
+	    cerr << "Failed to open " << outfile_name << ".\n";
+	    return EX_UNAVAILABLE;
+	}
+
+	/* Assemble source */
+	return assem(argv[0], argv[c], &infile, &outfile);
     }
 }
 
@@ -64,29 +77,34 @@ int     assem(const char *prog_name, const char *filename,
     SymTable        codeSymTable;
     SymTable        dataSymTable;
     statement       *stmnt;
-    const char      *prog_base_name;
+    const char      *filename_extension;
     int             assemStatus = EX_OK;
     
     /*
      *  Statement is a base class for statements of various architectures.
      */
     
-    prog_base_name = strrchr(prog_name, '/');
-    if ( prog_base_name == NULL )
-	prog_base_name = prog_name;
-    else
-	++prog_base_name;
-    if ( strcmp(prog_base_name, "asepc.bin") == 0 )
-	stmnt = new statement_epc;
-    else if ( strcmp(prog_base_name, "as68k.bin") == 0 )
-	stmnt = new statement68k;
+    filename_extension = strrchr(filename, '.');
+    if ( filename_extension != NULL )
+    {
+	if ( strcmp(filename_extension, ".epc") == 0 )
+	    stmnt = new statement_epc;
+	else if ( strcmp(filename_extension, ".68k") == 0 )
+	    stmnt = new statement68k;
+	else
+	{
+	    cerr << "Error: Unknown language: " << filename_extension << '\n';
+	    cerr << "Supported extensions are \".epc\" and \".68k\".\n";
+	    exit(EX_USAGE);
+	}
+    }
     else
     {
-	cerr << "Error: Unknown language: " << prog_name << '\n';
-	cerr << "Invoke as as68k.bin or asepc.bin.\n";
+	cerr << "Error: filename must have an extension to indicate language.\n";
+	cerr << "Supported extensions are \".epc\" and \".68k\".\n";
 	exit(EX_USAGE);
     }
-    
+
     /*
      *  Pass1: Build symbol table, translate
      */
@@ -102,7 +120,7 @@ int     assem(const char *prog_name, const char *filename,
 	
 	if ( stmnt->isComment(0) )
 	{
-	    //cout << "Comment: " << sourceCode << endl;
+	    //cerr << "Comment: " << stmnt->get_sourceCode() << endl;
 	    continue;
 	}
 
@@ -219,7 +237,7 @@ int     assem(const char *prog_name, const char *filename,
 void    usage(char *argv[])
 
 {
-    cerr << "Usage: " << argv[0] << "[source-file]\n";
+    cerr << "Usage: " << argv[0] << "[-d] [source-file]\n";
     exit(EX_USAGE);
 }
 

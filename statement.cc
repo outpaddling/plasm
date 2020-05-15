@@ -2,7 +2,10 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 #include <cctype>
+//#define __STDC_FORMAT_MACROS    // OS X Snow Leopard gcc 4.2.1 SCNu64
+#include <inttypes.h>
 #include "statement.h"
 
 /*
@@ -134,7 +137,9 @@ void    statement :: processDirective(string::size_type startPos)
 	currentDataType = TYPE_FLOAT;
     else if ( textOpcode == ".double" )
 	currentDataType = TYPE_DOUBLE;
-
+    else
+	add_parseStatus(STATEMENT_INVALID_DIRECTIVE);
+    
     processInitializers(startPos);
 }
 
@@ -160,6 +165,7 @@ void    statement :: processInitializers(string::size_type startPos)
 			repeatPos;
     string              valText,
 			repeatStr;
+    char                *end;
     int                 repeat,
 			c,
 			initializers = 0;
@@ -195,7 +201,8 @@ void    statement :: processInitializers(string::size_type startPos)
 	switch(currentDataType)
 	{
 	    case    TYPE_BYTE:
-		sscanf(valText.c_str(), "%qi", &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(2) << integer << ' ';
@@ -205,7 +212,8 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_SHORT:
-		sscanf(valText.c_str(), "%qi", &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(4) << integer << ' ';
@@ -215,7 +223,8 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_LONG:
-		sscanf(valText.c_str(), "%qi", &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(8) << integer << ' ';
@@ -225,7 +234,8 @@ void    statement :: processInitializers(string::size_type startPos)
 		break;
 	    
 	    case    TYPE_QUAD:
-		sscanf(valText.c_str(), "%qi", &integer);
+		//sscanf(valText.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(valText.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
 		    mcStream << setw(16) << integer << ' ';
@@ -332,6 +342,9 @@ void    statement :: printErrors(const char *filename,
     if ( parseStatus & STATEMENT_OPERAND_COUNT )
 	cerr << "Wrong number of arguments for instruction.\n";
 
+    if ( parseStatus & STATEMENT_INVALID_DIRECTIVE )
+	cerr << "Invalid directive.\n";
+
     cerr << sourceCode << '\n';
 }
 
@@ -387,6 +400,7 @@ istream    &statement :: read(istream &infile)
 	while ( isComment(endLabel) && getline(infile, sourceCode) )
 	    endLabel = 0;
     }
+    ++sourceLines;
     return infile;
 }
 
