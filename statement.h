@@ -99,6 +99,7 @@ class statement
 // Derived classes for specific architectures
 #include "as68k.h"
 #include "plasm_epc.h"
+#include "riscv.h"
 
 #endif
 
