@@ -155,6 +155,6 @@ install: all
 		    ${DESTDIR}${PREFIX}/include/plasm
 	${INSTALL} -m 0555 ${BIN} ${DESTDIR}${PREFIX}/bin
 	${INSTALL} -m 0555 plasm ${DESTDIR}${PREFIX}/bin
-	${INSTALL} -m 0444 epc-bits.h ${DESTDIR}${PREFIX}/include/plasm
+	${INSTALL} -m 0444 *-bits.h ${DESTDIR}${PREFIX}/include/plasm
 	${INSTALL} -m 0444 ${MAN}.man ${DESTDIR}${MANPREFIX}/man/man1/${MAN}.1
 
