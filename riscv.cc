@@ -6,6 +6,30 @@
 
 using namespace std;
 
+statement_riscv :: statement_riscv(void)
+
+{
+    /*
+     *  Build a table of opcodes sorted lexically.  A binary
+     *  search will be used to look up assembly opcodes and translate
+     *  them to machine code.
+     */
+    #include "riscv-table-init.c"
+
+    // Sort with STL sort function, so we can use binary_search()
+    // on the mnemonic later when translating.
+    // sort(opcodeTable.begin(), opcodeTable.end(), opcode_compare);
+
+    // Debug
+    /*
+    for (unsigned int c = 0; c < opcodeTable.size(); ++c)
+	cout << setw(6) << setfill(' ') << opcodeTable[c].get_assem() << ' '
+	    << hex << setw(2) << setfill('0') << opcodeTable[c].get_bin()
+	    << '\n';
+    */
+}
+
+
 /***************************************************************************
  * Description:
  *  Convert instruction to binary
@@ -15,7 +39,7 @@ using namespace std;
  * Returns:
  *
  * History: 
- *  Nov 2009    J Bacon
+ *  July 2022    J Bacon
  ***************************************************************************/
 
 void statement_riscv :: translateOpcode(void)
@@ -32,7 +56,7 @@ void statement_riscv :: translateOpcode(void)
  * Returns:
  *
  * History: 
- *  Nov 2009    J Bacon
+ *  July 2022    J Bacon
  ***************************************************************************/
 
 void    statement_riscv :: translateOperand(string &operand)

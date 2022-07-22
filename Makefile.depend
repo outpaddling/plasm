@@ -1,24 +1,24 @@
-as68k.o: as68k.cc statement.h symtable.h transunit.h as68k.h plasm_epc.h \
-  opcode.h plasm-epc-bits.h riscv.h
+as68k.o: as68k.cc statement.h symtable.h transunit.h opcode.h as68k.h \
+  epc.h epc-bits.h riscv.h riscv-bits.h
 	${CXX} -c ${CXXFLAGS} as68k.cc
 
-epc.o: epc.cc statement.h symtable.h transunit.h as68k.h plasm_epc.h \
-  opcode.h plasm-epc-bits.h riscv.h table_init.c
+epc.o: epc.cc statement.h symtable.h transunit.h opcode.h as68k.h epc.h \
+  epc-bits.h riscv.h riscv-bits.h epc-table-init.c
 	${CXX} -c ${CXXFLAGS} epc.cc
 
 opcode.o: opcode.cc opcode.h
 	${CXX} -c ${CXXFLAGS} opcode.cc
 
-plasm.o: plasm.cc statement.h symtable.h transunit.h as68k.h plasm_epc.h \
-  opcode.h plasm-epc-bits.h riscv.h plasm.h
+plasm.o: plasm.cc statement.h symtable.h transunit.h opcode.h as68k.h \
+  epc.h epc-bits.h riscv.h riscv-bits.h plasm.h
 	${CXX} -c ${CXXFLAGS} plasm.cc
 
-riscv.o: riscv.cc statement.h symtable.h transunit.h as68k.h plasm_epc.h \
-  opcode.h plasm-epc-bits.h riscv.h
+riscv.o: riscv.cc statement.h symtable.h transunit.h opcode.h as68k.h \
+  epc.h epc-bits.h riscv.h riscv-bits.h riscv-table-init.c
 	${CXX} -c ${CXXFLAGS} riscv.cc
 
-statement.o: statement.cc statement.h symtable.h transunit.h as68k.h \
-  plasm_epc.h opcode.h plasm-epc-bits.h riscv.h
+statement.o: statement.cc statement.h symtable.h transunit.h opcode.h \
+  as68k.h epc.h epc-bits.h riscv.h riscv-bits.h
 	${CXX} -c ${CXXFLAGS} statement.cc
 
 symtable.o: symtable.cc symtable.h transunit.h

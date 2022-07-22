@@ -61,12 +61,12 @@ OBJS    = plasm.o statement.o symtable.o as68k.o riscv.o epc.o \
 
 # Install in /usr/local, unless defined by the parent Makefile, the
 # environment, or a command line option such as PREFIX=/opt/local.
-PREFIX      ?= /usr/local
+PREFIX      ?= ../local
 MANPREFIX   ?= ${PREFIX}
 
 # Where to find local libraries and headers.  For MacPorts, override
 # with "make LOCALBASE=/opt/local"
-LOCALBASE   ?= ${PREFIX}
+LOCALBASE   ?= /usr/local
 
 ############################################################################
 # Build flags
@@ -74,16 +74,15 @@ LOCALBASE   ?= ${PREFIX}
 # Do not add non-portable options (such as -Wall) using +=
 
 # Portable defaults.  Can be overridden by mk.conf or command line.
-CC          ?= gcc
+CC          ?= cc
 CFLAGS      ?= -Wall -g
 
-CXX         ?= g++
+CXX         ?= c++
 CXXFLAGS    ?= -Wall -g
 
 INCLUDES    += -I${LOCALBASE}/include
 CFLAGS      += ${INCLUDES}
 CXXFLAGS    += ${INCLUDES}
-# LFLAGS      += -L${LOCALBASE}/lib -lboost_regex
 
 ############################################################################
 # Assume first command in PATH.  Override with full pathnames if necessary.
@@ -129,8 +128,11 @@ depend:
 	    ${PRINTF} "\t\$${CXX} -c \$${CXXFLAGS} $${file}\n\n" >> Makefile.depend; \
 	done
 
-table_init.c:   plasm-epc-bits.h
-	awk -f defs2init.awk plasm-epc-bits.h > table_init.c
+epc-table-init.c:   epc-bits.h
+	awk -f defs2init.awk epc-bits.h > epc-table-init.c
+
+riscv-table-init.c:   riscv-bits.h
+	awk -f defs2init.awk riscv-bits.h > riscv-table-init.c
 
 ############################################################################
 # Remove generated files (objs and nroff output from man pages)
@@ -146,10 +148,11 @@ realclean: clean
 # Install all target files (binaries, libraries, docs, etc.)
 
 install: all
-	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/man/man1
+	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/man/man1 \
+		    ${PREFIX}/include/plasm
 	${INSTALL} -m 0555 ${BIN} ${PREFIX}/bin
 	${INSTALL} -m 0555 plasm ${PREFIX}/bin
-	${INSTALL} -m 0444 plasm-epc-bits.h ${PREFIX}/include
+	${INSTALL} -m 0444 epc-bits.h ${PREFIX}/include/plasm
 	${INSTALL} -m 0444 ${MAN}.man ${MANPREFIX}/man/man1/${MAN}.1
 
 ############################################################################

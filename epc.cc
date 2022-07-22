@@ -19,7 +19,7 @@ statement_epc :: statement_epc(void)
      *  search will be used to look up assembly opcodes and translate
      *  them to machine code.
      */
-    #include "table_init.c"
+    #include "epc-table-init.c"
 
     // Sort with STL sort function, so we can use binary_search()
     // on the mnemonic later when translating.
