@@ -47,7 +47,7 @@
 ############################################################################
 # Executable
 
-BIN     = plasm.bin
+BIN     = plasm
 MAN     = plasm
 
 ############################################################################
@@ -63,10 +63,11 @@ OBJS    = plasm.o statement.o symtable.o as68k.o riscv.o epc.o \
 # environment, or a command line option such as PREFIX=/opt/local.
 PREFIX      ?= ../local
 MANPREFIX   ?= ${PREFIX}
+MANDIR      ?= ${MANPREFIX}/man
 
 # Where to find local libraries and headers.  For MacPorts, override
 # with "make LOCALBASE=/opt/local"
-LOCALBASE   ?= /usr/local
+LOCALBASE   ?= ${PREFIX}
 
 ############################################################################
 # Build flags
@@ -80,7 +81,7 @@ CFLAGS      ?= -Wall -g
 CXX         ?= c++
 CXXFLAGS    ?= -Wall -g
 
-INCLUDES    += -I${LOCALBASE}/include
+INCLUDES    += -isystem ${PREFIX}/include -isystem ${LOCALBASE}/include
 CFLAGS      += ${INCLUDES}
 CXXFLAGS    += ${INCLUDES}
 
@@ -138,7 +139,7 @@ riscv-table-init.c:   riscv-bits.h
 # Remove generated files (objs and nroff output from man pages)
 
 clean:
-	rm -f ${OBJS} ${BIN} *.nr *.bin *-pp.epc
+	rm -f ${OBJS} ${BIN} *.nr plasm *-pp.epc
 
 # Keep backup files during normal clean, but provide an option to remove them
 realclean: clean
@@ -148,19 +149,10 @@ realclean: clean
 # Install all target files (binaries, libraries, docs, etc.)
 
 install: all
-	${MKDIR} -p ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/man/man1 \
-		    ${PREFIX}/include/plasm
-	${INSTALL} -m 0555 ${BIN} ${PREFIX}/bin
-	${INSTALL} -m 0555 plasm ${PREFIX}/bin
-	${INSTALL} -m 0444 epc-bits.h ${PREFIX}/include/plasm
-	${INSTALL} -m 0444 ${MAN}.man ${MANPREFIX}/man/man1/${MAN}.1
-
-############################################################################
-# Remove all installed files
-
-uninstall:
-	${RM} ${PREFIX}/bin/${BIN}
-	${RM} ${PREFIX}/bin/plasm
-	${RM} ${PREFIX}/include/plasm-epc-bits.h
-	${RM} ${MANPREFIX}/man/man1/${MAN}.1
+	${MKDIR} -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/include ${DESTDIR}${PREFIX}/man/man1 \
+		    ${DESTDIR}${PREFIX}/include/plasm
+	${INSTALL} -m 0555 ${BIN} ${DESTDIR}${PREFIX}/bin
+	${INSTALL} -m 0555 plasm ${DESTDIR}${PREFIX}/bin
+	${INSTALL} -m 0444 epc-bits.h ${DESTDIR}${PREFIX}/include/plasm
+	${INSTALL} -m 0444 ${MAN}.man ${DESTDIR}${MANPREFIX}/man/man1/${MAN}.1
 
