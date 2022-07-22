@@ -47,7 +47,7 @@
 ############################################################################
 # Executable
 
-BIN     = plasm
+BIN     = plasm.bin
 MAN     = plasm
 
 ############################################################################
@@ -139,7 +139,7 @@ riscv-table-init.c:   riscv-bits.h
 # Remove generated files (objs and nroff output from man pages)
 
 clean:
-	rm -f ${OBJS} ${BIN} *.nr plasm *-pp.epc
+	rm -f ${OBJS} ${BIN} *.nr plasm.bin *-pp.epc
 
 # Keep backup files during normal clean, but provide an option to remove them
 realclean: clean
@@ -149,7 +149,9 @@ realclean: clean
 # Install all target files (binaries, libraries, docs, etc.)
 
 install: all
-	${MKDIR} -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/include ${DESTDIR}${PREFIX}/man/man1 \
+	${MKDIR} -p ${DESTDIR}${PREFIX}/bin \
+		    ${DESTDIR}${PREFIX}/include \
+		    ${DESTDIR}${PREFIX}/man/man1 \
 		    ${DESTDIR}${PREFIX}/include/plasm
 	${INSTALL} -m 0555 ${BIN} ${DESTDIR}${PREFIX}/bin
 	${INSTALL} -m 0555 plasm ${DESTDIR}${PREFIX}/bin
