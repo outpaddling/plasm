@@ -218,7 +218,8 @@ int     assem(const char *prog_name, const char *filename,
 	mc_offset_t    offset;
 	while ( transUnit.get_dataTempFile() >> offset )
 	{
-	    (*outfile) << setw(OFFSET_WIDTH) << transUnit.get_codeOffset() + offset;
+	    (*outfile) << setw(OFFSET_WIDTH) 
+		<< transUnit.get_codeOffset() + offset;
 	    while ( transUnit.get_dataTempFile().get(ch) && (ch != '\n') )
 		(*outfile).put(ch);
 	    (*outfile) << '\n';

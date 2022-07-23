@@ -8,8 +8,7 @@ y:  .double 6.02e23
 
 p:  .string "Hello, world!\n\0"
 
-main:
-	j       go
+main:   j       go
 	jl      go
 	beq     go
 	bne     go

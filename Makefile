@@ -139,7 +139,7 @@ riscv-table-init.cc:   riscv-bits.h
 # Remove generated files (objs and nroff output from man pages)
 
 clean:
-	rm -f ${OBJS} ${BIN} *.nr *.bin *-pp.epc
+	rm -f ${OBJS} ${BIN} *.nr *.bin *-pp.*
 
 # Keep backup files during normal clean, but provide an option to remove them
 realclean: clean
