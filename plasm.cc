@@ -20,7 +20,6 @@ int     main(int argc,char *argv[])
     char            outfile_name[PATH_MAX+1], *p;
     int             c;
     
-    cerr << argc << endl;
     for (c = 1; (c < argc) && (*argv[c] == '-'); ++c)
     {
 	cerr << argv[c] << endl;
@@ -91,6 +90,8 @@ int     assem(const char *prog_name, const char *filename,
 	    stmnt = new statement_epc;
 	else if ( strcmp(filename_extension, ".68k") == 0 )
 	    stmnt = new statement68k;
+	else if ( strcmp(filename_extension, ".riscv") == 0 )
+	    stmnt = new statement_riscv;
 	else
 	{
 	    cerr << "Error: Unknown language: " << filename_extension << '\n';

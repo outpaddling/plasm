@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <sysexits.h>
 #include <regex.h>
-//#include <boost/regex.hpp>
 #include "statement.h"
 
 extern bool Debug;
@@ -19,7 +18,7 @@ statement_epc :: statement_epc(void)
      *  search will be used to look up assembly opcodes and translate
      *  them to machine code.
      */
-    #include "epc-table-init.c"
+    initTable();
 
     // Sort with STL sort function, so we can use binary_search()
     // on the mnemonic later when translating.

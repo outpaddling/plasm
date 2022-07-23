@@ -6,6 +6,7 @@
 #define _RISCV_H_
 
 #include <vector>
+#include "statement.h"
 #include "riscv-bits.h"
 
 class statement_riscv : public statement
@@ -16,10 +17,12 @@ class statement_riscv : public statement
 	void    translateOperand(string &operand);
 	bool    isComment(string::size_type start_pos);
 	void    outputMl(ostream &outfile);
+	void    initTable(void);
     private:
 	//uint32_t        binaryOpcode;
 	string          label;
-	uint32_t        instruction;    // Bit codes
+	uint32_t        binaryOpcode;
+	uint32_t        machineInstruction;
 	vector<opcode>  opcodeTable;
 };
 

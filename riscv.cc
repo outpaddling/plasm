@@ -14,19 +14,19 @@ statement_riscv :: statement_riscv(void)
      *  search will be used to look up assembly opcodes and translate
      *  them to machine code.
      */
-    #include "riscv-table-init.c"
+    initTable();
 
     // Sort with STL sort function, so we can use binary_search()
     // on the mnemonic later when translating.
-    // sort(opcodeTable.begin(), opcodeTable.end(), opcode_compare);
+    sort(opcodeTable.begin(), opcodeTable.end(), opcode_compare);
 
     // Debug
-    /*
+    cerr << "List of opcodes:\n";
     for (unsigned int c = 0; c < opcodeTable.size(); ++c)
-	cout << setw(6) << setfill(' ') << opcodeTable[c].get_assem() << ' '
-	    << hex << setw(2) << setfill('0') << opcodeTable[c].get_bin()
-	    << '\n';
-    */
+	cerr 
+	    << hex << setw(8) << setfill('0') << opcodeTable[c].get_bin()
+	    << "  " << opcodeTable[c].get_assem() << '\n';
+    cerr << '\n';
 }
 
 
@@ -44,6 +44,33 @@ statement_riscv :: statement_riscv(void)
 
 void statement_riscv :: translateOpcode(void)
 {
+    string opcode_sought = statement::get_textOpcode();
+    opcode key(opcode_sought, 0);
+    
+    cerr << opcode_sought << endl;
+    
+    // Binary search opcode table
+    vector<opcode>::const_iterator where =
+	lower_bound(opcodeTable.begin(), opcodeTable.end(),
+	key, opcode_compare);
+    
+    // Extract opcode
+    string opcode_found = ((opcode)(*where)).get_assem();
+    if ( opcode_found == statement::get_textOpcode() )
+    {
+	binaryOpcode = ((opcode)(*where)).get_bin();
+	statement::add_to_machineCodeSize(1);   // 1 byte opcode
+	statement::add_to_machineCodeCols(3);   // opcode + ' '
+    }
+    else
+    {
+	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
+    }
+    
+    cerr << binaryOpcode << endl;
+    
+    // Add opcode to machineInstruction
+    machineInstruction = binaryOpcode;
 }
 
 
@@ -92,6 +119,6 @@ bool statement_riscv :: isComment(string::size_type start_pos)
 void statement_riscv :: outputMl(ostream &outfile)
 
 {
-    outfile << hex << setw(4) << setfill('0') << instruction;
+    outfile << hex << setw(8) << setfill('0') << machineInstruction;
 }
 

@@ -50,7 +50,8 @@ class statement
 	virtual void    translateOperand(string &operand) = 0;
 	virtual bool    isComment(string::size_type start_post) = 0;
 	virtual void    outputMl(ostream &outfile) = 0;
-
+	//virtual void    initTable(void) = 0;
+	
 	// Mutators, accessors, etc.
 	inline unsigned int    get_operandCount(void) { return operandCount; }
 	inline string   &get_label(void) { return label; }

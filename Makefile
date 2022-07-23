@@ -54,7 +54,7 @@ MAN     = plasm
 # List object files that comprise BIN.
 
 OBJS    = plasm.o statement.o symtable.o as68k.o riscv.o epc.o \
-	  opcode.o transunit.o
+	  opcode.o transunit.o epc-table-init.o riscv-table-init.o
 
 ############################################################################
 # Compile, link, and install options
@@ -129,17 +129,17 @@ depend:
 	    ${PRINTF} "\t\$${CXX} -c \$${CXXFLAGS} $${file}\n\n" >> Makefile.depend; \
 	done
 
-epc-table-init.c:   epc-bits.h
-	awk -f defs2init.awk epc-bits.h > epc-table-init.c
+epc-table-init.cc:   epc-bits.h
+	awk -f defs2init.awk epc-bits.h > epc-table-init.cc
 
-riscv-table-init.c:   riscv-bits.h
-	awk -f defs2init.awk riscv-bits.h > riscv-table-init.c
+riscv-table-init.cc:   riscv-bits.h
+	awk -f defs2init.awk riscv-bits.h > riscv-table-init.cc
 
 ############################################################################
 # Remove generated files (objs and nroff output from man pages)
 
 clean:
-	rm -f ${OBJS} ${BIN} *.nr plasm.bin *-pp.epc
+	rm -f ${OBJS} ${BIN} *.nr *.bin *-pp.epc
 
 # Keep backup files during normal clean, but provide an option to remove them
 realclean: clean

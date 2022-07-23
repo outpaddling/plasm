@@ -6,6 +6,7 @@
 #define _EPC_H_
 
 #include <vector>
+#include "statement.h"
 #include "epc-bits.h"
 
 #define MACHINE_CODE_FIELD_WIDTH    40
@@ -19,6 +20,7 @@ class statement_epc : public statement
 	bool    isComment(string::size_type start_pos);
 	void    outputMl(ostream &outfile);
 	inline int  get_dataSize(void) { return dataSize; }
+	void    initTable(void);
     private:
 	int             dataSize;
 	uint8_t         binaryOpcode;
