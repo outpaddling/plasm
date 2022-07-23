@@ -1,7 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <algorithm>    // sort()
 #include <sysexits.h>
+#include <regex.h>      // Needed for operand parsing?
 #include "statement.h"
 
 using namespace std;
