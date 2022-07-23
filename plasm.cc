@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <climits>
-#include <xtend/string.h>   // strlcpy() on Linux
 #include "statement.h"
 #include "symtable.h"
 #include "plasm.h"
