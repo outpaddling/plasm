@@ -3,8 +3,10 @@
 #include <string>
 #include <algorithm>    // sort()
 #include <sysexits.h>
-#include <regex.h>      // Needed for operand parsing?
+#include <regex.h>      // Operand parsing
 #include "statement.h"
+
+extern bool Debug;
 
 using namespace std;
 
@@ -91,6 +93,96 @@ void statement_riscv :: translateOpcode(void)
 void    statement_riscv :: translateOperand(string &operand)
 
 {
+    static char const *pattern_reg_direct = "^[Xx][0-9][0-9]?$",
+		*pattern_reg_indirect = "^\\([Xx][0-9][0-9]?\\)$",
+		*pattern_numeric_offset = "^-?([0-9]+|0x[0-9a-fA-F]+)\\([Xx][0-9][0-5]?\\)$",
+		*pattern_mem_direct = "^[a-zA-Z_][a-zA-Z0-9_]*$",
+		*pattern_immediate_int = "^[0-9]+|0x[0-9a-fA-F]+$",
+		*pattern_immediate_float = "^[0-9]*\\.[0-9]+(e[0-9]+)?$",
+		*pattern_immediate_address = "^\\([0-9]+\\)|\\(0x[0-9a-fA-F]+\\)$";
+    unsigned int        reg_num,
+			operandCount = statement::get_operandCount();
+    string::size_type   endOffset;
+    // Boost is a huge and annoying dependency for just pattern matching
+    // so we just use regex
+    regex_t     preg_reg_direct,
+		preg_reg_indirect,
+		preg_numeric_offset,
+		preg_mem_direct,
+		preg_immediate_int,
+		preg_immediate_float,
+		preg_immediate_address;
+    regmatch_t  matches[1];
+ 
+    Debug = true;
+    
+    label[operandCount] = "";
+    
+    if (Debug) cerr << "Operand = " << operand << endl;
+    
+    regcomp(&preg_reg_direct, pattern_reg_direct, REG_EXTENDED);
+    regcomp(&preg_reg_indirect, pattern_reg_indirect, REG_EXTENDED);
+    regcomp(&preg_numeric_offset, pattern_numeric_offset, REG_EXTENDED);
+    regcomp(&preg_mem_direct, pattern_mem_direct, REG_EXTENDED);
+    regcomp(&preg_immediate_int, pattern_immediate_int, REG_EXTENDED);
+    regcomp(&preg_immediate_float, pattern_immediate_float, REG_EXTENDED);
+    regcomp(&preg_immediate_address, pattern_immediate_address, REG_EXTENDED);
+    
+    // Register direct
+    if ( regexec(&preg_reg_direct, operand.c_str(), 1, matches, 0) == 0 )
+    {
+	if (Debug) cerr << "Reg direct\n";
+	sscanf(operand.c_str(), "r%d", &reg_num);
+    }
+    
+    // Register indirect
+    else if ( regexec(&preg_reg_indirect, operand.c_str(), 1, matches, 0) == 0 )
+    {
+	if (Debug) cerr << "Reg indirect\n";
+	sscanf(operand.c_str(), "(r%d)", &reg_num);
+    }
+    
+    // Numeric_offset
+    else if ( regexec(&preg_numeric_offset, operand.c_str(), 1, matches, 0) == 0 )
+    {
+	if (Debug) cerr << "Numeric offset\n";
+	endOffset = operand.find("(");
+	sscanf(operand.substr(endOffset).c_str(), "(x%d)", &reg_num);
+	if (Debug) cerr << "reg_num = " << reg_num << endl;
+	//cout << "Offset: " << label[operandCount] << ' ' << reg_num << '\n';
+    }
+    
+    // Memory direct
+    else if ( regexec(&preg_mem_direct, operand.c_str(), 1, matches, 0) == 0 )
+    {
+	if (Debug) cerr << "Mem direct\n";
+	label[operandCount] = operand;
+    }
+    
+    // Immediate
+    else if ( regexec(&preg_immediate_int, operand.c_str(), 1, matches, 0) == 0 )
+    {
+	if (Debug) cerr << "Immediate int\n";
+	sscanf(operand.c_str(), "%i", &operandValue[operandCount]);
+    }
+    
+    // Immediate
+    else if ( regexec(&preg_immediate_float, operand.c_str(), 1, matches, 0) == 0 )
+    {
+	if (Debug) cerr << "Immediate float\n";
+	sscanf(operand.c_str(), "%f", (float *)&operandValue[operandCount]);
+    }
+    
+    else
+	statement::add_parseStatus(STATEMENT_INVALID_OPERAND);
+
+    regfree(&preg_reg_direct);
+    regfree(&preg_reg_indirect);
+    regfree(&preg_numeric_offset);
+    regfree(&preg_mem_direct);
+    regfree(&preg_immediate_int);
+    regfree(&preg_immediate_float);
+    regfree(&preg_immediate_address);
 }
 
 

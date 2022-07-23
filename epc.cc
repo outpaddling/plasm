@@ -1,9 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <algorithm>
+#include <algorithm>    // sort()
 #include <sysexits.h>
-#include <regex.h>
+#include <regex.h>      // Operand parsing
 #include "statement.h"
 
 extern bool Debug;
@@ -243,7 +243,7 @@ void    statement_epc :: translateOperand(string &operand)
 	statement::add_to_machineCodeCols(3);
     }
     
-    // Numeric offset
+    // Label_offset
     else if ( regexec(&preg_label_offset, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Num offset\n";
@@ -257,9 +257,10 @@ void    statement_epc :: translateOperand(string &operand)
 	statement::add_to_machineCodeCols(3 + 9);
     }
     
-    // Label_offset
+    // Numeric offset
     else if ( regexec(&preg_numeric_offset, operand.c_str(), 1, matches, 0) == 0 )
     {
+	// FIXME: Use endOffset?
 	if (Debug) cerr << "Label offset\n";
 	endLabel = operand.find("(");
 	label[operandCount] = operand.substr(0, endLabel);
