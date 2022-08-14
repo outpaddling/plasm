@@ -2,19 +2,19 @@
  *  This file should be included in statement.h.
  */
 
-#ifndef _EPC_H_
-#define _EPC_H_
+#ifndef _ECISC_H_
+#define _ECISC_H_
 
 #include <vector>
 #include "statement.h"
-#include "epc-bits.h"
+#include "ecisc-bits.h"
 
 #define MACHINE_CODE_FIELD_WIDTH    40
 
-class statement_epc : public statement
+class statement_ecisc : public statement
 {
     public:
-	statement_epc(void);
+	statement_ecisc(void);
 	void    translateOpcode(void);
 	void    translateOperand(string &operand);
 	bool    isComment(string::size_type start_pos);

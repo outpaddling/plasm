@@ -53,8 +53,8 @@ MAN     = plasm
 ############################################################################
 # List object files that comprise BIN.
 
-OBJS    = plasm.o statement.o symtable.o as68k.o riscv.o epc.o \
-	  opcode.o transunit.o epc-table-init.o riscv-table-init.o
+OBJS    = plasm.o statement.o symtable.o as68k.o riscv.o ecisc.o \
+	  opcode.o transunit.o ecisc-table-init.o riscv-table-init.o
 
 ############################################################################
 # Compile, link, and install options
@@ -129,8 +129,8 @@ depend:
 	    ${PRINTF} "\t\$${CXX} -c \$${CXXFLAGS} $${file}\n\n" >> Makefile.depend; \
 	done
 
-epc-table-init.cc:   epc-bits.h
-	awk -f defs2init.awk epc-bits.h > epc-table-init.cc
+ecisc-table-init.cc:   ecisc.h
+	awk -f defs2init.awk ecisc-bits.h > ecisc-table-init.cc
 
 riscv-table-init.cc:   riscv-bits.h
 	awk -f defs2init.awk riscv-bits.h > riscv-table-init.cc

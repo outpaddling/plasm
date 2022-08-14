@@ -10,7 +10,7 @@ extern bool Debug;
 
 using namespace std;
 
-statement_epc :: statement_epc(void)
+statement_ecisc :: statement_ecisc(void)
 
 {
     /*
@@ -46,7 +46,7 @@ statement_epc :: statement_epc(void)
  *  May 2010    J Bacon
  ***************************************************************************/
 
-void statement_epc :: translateOpcode(void)
+void statement_ecisc :: translateOpcode(void)
 {
     string opcode_sought = statement::get_textOpcode();
     opcode key(opcode_sought, 0);
@@ -152,7 +152,7 @@ void statement_epc :: translateOpcode(void)
  *  May 2010    J Bacon
  ***************************************************************************/
 
-void    statement_epc :: translateOperand(string &operand)
+void    statement_ecisc :: translateOperand(string &operand)
 
 {
     static char const *pattern_reg_direct = "^[Rr][0-9][0-5]?$",
@@ -363,7 +363,7 @@ void    statement_epc :: translateOperand(string &operand)
  *
  ***************************************************************************/
 
-bool statement_epc :: isComment(string::size_type start_pos)
+bool statement_ecisc :: isComment(string::size_type start_pos)
 
 {
     string  &sourceCode = statement::get_sourceCode();
@@ -376,7 +376,7 @@ bool statement_epc :: isComment(string::size_type start_pos)
 }
 
 
-void statement_epc :: outputMl(ostream &outfile)
+void statement_ecisc :: outputMl(ostream &outfile)
 
 {
     outfile << hex << setw(2) << setfill('0') <<

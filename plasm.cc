@@ -87,7 +87,7 @@ int     assem(const char *prog_name, const char *filename,
     if ( filename_extension != NULL )
     {
 	if ( strcmp(filename_extension, ".epc") == 0 )
-	    stmnt = new statement_epc;
+	    stmnt = new statement_ecisc;
 	else if ( strcmp(filename_extension, ".68k") == 0 )
 	    stmnt = new statement68k;
 	else if ( strcmp(filename_extension, ".riscv") == 0 )

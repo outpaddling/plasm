@@ -1,6 +1,6 @@
-#include "epc.h"
+#include "ecisc.h"
 
-void statement_epc :: initTable(void)
+void statement_ecisc :: initTable(void)
 {
     opcodeTable.push_back(opcode("jl", OP_JL));
     opcodeTable.push_back(opcode("ret", OP_RET));
