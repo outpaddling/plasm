@@ -72,61 +72,61 @@ void statement_ecisc :: translateOpcode(void)
     // Set data size for this instruction
     switch(binaryOpcode)
     {
-	case    OP_MOVB:
-	case    OP_CMPB:
-	case    OP_NOTB:
-	case    OP_ANDB:
-	case    OP_ORB:
-	case    OP_SLLB:
-	case    OP_SRLB:
-	case    OP_SRAB:
-	case    OP_ROLB:
-	case    OP_ADDB:
-	case    OP_SUBB:
-	case    OP_MULB:
-	case    OP_DIVB:
-	case    OP_REMB:
-	case    OP_INPUTB:
-	case    OP_OUTPUTB:
+	case    ECISC_OP_MOVB:
+	case    ECISC_OP_CMPB:
+	case    ECISC_OP_NOTB:
+	case    ECISC_OP_ANDB:
+	case    ECISC_OP_ORB:
+	case    ECISC_OP_SLLB:
+	case    ECISC_OP_SRLB:
+	case    ECISC_OP_SRAB:
+	case    ECISC_OP_ROLB:
+	case    ECISC_OP_ADDB:
+	case    ECISC_OP_SUBB:
+	case    ECISC_OP_MULB:
+	case    ECISC_OP_DIVB:
+	case    ECISC_OP_REMB:
+	case    ECISC_OP_INPUTB:
+	case    ECISC_OP_OUTPUTB:
 	    dataSize = 1;
 	    break;
-	case    OP_MOVS:
-	case    OP_CMPS:
-	case    OP_NOTS:
-	case    OP_ANDS:
-	case    OP_ORS:
-	case    OP_SLLS:
-	case    OP_SRLS:
-	case    OP_SRAS:
-	case    OP_ROLS:
-	case    OP_ADDS:
-	case    OP_SUBS:
-	case    OP_MULS:
-	case    OP_DIVS:
-	case    OP_REMS:
-	case    OP_INPUTS:
-	case    OP_OUTPUTS:
+	case    ECISC_OP_MOVS:
+	case    ECISC_OP_CMPS:
+	case    ECISC_OP_NOTS:
+	case    ECISC_OP_ANDS:
+	case    ECISC_OP_ORS:
+	case    ECISC_OP_SLLS:
+	case    ECISC_OP_SRLS:
+	case    ECISC_OP_SRAS:
+	case    ECISC_OP_ROLS:
+	case    ECISC_OP_ADDS:
+	case    ECISC_OP_SUBS:
+	case    ECISC_OP_MULS:
+	case    ECISC_OP_DIVS:
+	case    ECISC_OP_REMS:
+	case    ECISC_OP_INPUTS:
+	case    ECISC_OP_OUTPUTS:
 	    dataSize = 2;
 	    break;
-	case    OP_MOVQ:
-	case    OP_CMPQ:
-	case    OP_NOTQ:
-	case    OP_ANDQ:
-	case    OP_ORQ:
-	case    OP_SLLQ:
-	case    OP_SRLQ:
-	case    OP_SRAQ:
-	case    OP_ROLQ:
-	case    OP_ADDQ:
-	case    OP_SUBQ:
-	case    OP_MULQ:
-	case    OP_DIVQ:
-	case    OP_REMQ:
-	case    OP_CMPD:
-	case    OP_ADDD:
-	case    OP_SUBD:
-	case    OP_MULD:
-	case    OP_DIVD:
+	case    ECISC_OP_MOVQ:
+	case    ECISC_OP_CMPQ:
+	case    ECISC_OP_NOTQ:
+	case    ECISC_OP_ANDQ:
+	case    ECISC_OP_ORQ:
+	case    ECISC_OP_SLLQ:
+	case    ECISC_OP_SRLQ:
+	case    ECISC_OP_SRAQ:
+	case    ECISC_OP_ROLQ:
+	case    ECISC_OP_ADDQ:
+	case    ECISC_OP_SUBQ:
+	case    ECISC_OP_MULQ:
+	case    ECISC_OP_DIVQ:
+	case    ECISC_OP_REMQ:
+	case    ECISC_OP_CMPD:
+	case    ECISC_OP_ADDD:
+	case    ECISC_OP_SUBD:
+	case    ECISC_OP_MULD:
+	case    ECISC_OP_DIVD:
 	    dataSize = 8;
 	    break;
 	default:
@@ -208,7 +208,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     {
 	if (Debug) cerr << "Reg direct\n";
 	sscanf(operand.c_str(), "r%d", &reg_num);
-	modeByte[operandCount] = MODE_REG_DIRECT | reg_num;
+	modeByte[operandCount] = ECISC_MODE_REG_DIRECT | reg_num;
 	statement::add_to_machineCodeSize(1);
 	statement::add_to_machineCodeCols(3);
     }
@@ -218,7 +218,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     {
 	if (Debug) cerr << "Reg indirect\n";
 	sscanf(operand.c_str(), "(r%d)", &reg_num);
-	modeByte[operandCount] = MODE_REG_INDIRECT | reg_num;
+	modeByte[operandCount] = ECISC_MODE_REG_INDIRECT | reg_num;
 	statement::add_to_machineCodeSize(1);
 	statement::add_to_machineCodeCols(3);
     }
@@ -228,7 +228,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     {
 	if (Debug) cerr << "Autoincrement\n";
 	sscanf(operand.c_str(), "(r%d)+", &reg_num);
-	modeByte[operandCount] = MODE_AUTO_INCREMENT | reg_num;
+	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | reg_num;
 	statement::add_to_machineCodeSize(1);
 	statement::add_to_machineCodeCols(3);
     }
@@ -238,7 +238,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     {
 	if (Debug) cerr << "Autodecrement\n";
 	sscanf(operand.c_str(), "-(r%d)", &reg_num);
-	modeByte[operandCount] = MODE_AUTO_DECREMENT | reg_num;
+	modeByte[operandCount] = ECISC_MODE_AUTO_DECREMENT | reg_num;
 	statement::add_to_machineCodeSize(1);
 	statement::add_to_machineCodeCols(3);
     }
@@ -252,7 +252,7 @@ void    statement_ecisc :: translateOperand(string &operand)
 	if (Debug) cerr << endOffset << '\n';
 	sscanf(operand.c_str(), "%i", &(operandValue[operandCount]));
 	sscanf(operand.substr(endOffset).c_str(), "(r%d)", &reg_num);
-	modeByte[operandCount] = MODE_OFFSET | reg_num;
+	modeByte[operandCount] = ECISC_MODE_OFFSET | reg_num;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 9);
     }
@@ -265,7 +265,7 @@ void    statement_ecisc :: translateOperand(string &operand)
 	endLabel = operand.find("(");
 	label[operandCount] = operand.substr(0, endLabel);
 	sscanf(operand.substr(endLabel).c_str(), "(r%d)", &reg_num);
-	modeByte[operandCount] = MODE_OFFSET | reg_num;
+	modeByte[operandCount] = ECISC_MODE_OFFSET | reg_num;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
 	//cout << "Offset: " << label[operandCount] << ' ' << reg_num << '\n';
@@ -275,7 +275,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     else if ( regexec(&preg_mem_direct, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Mem direct\n";
-	modeByte[operandCount] = MODE_MEM_DIRECT;
+	modeByte[operandCount] = ECISC_MODE_MEM_DIRECT;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
 	label[operandCount] = operand;
@@ -285,7 +285,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     else if ( regexec(&preg_mem_indirect, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Mem indirect\n";
-	modeByte[operandCount] = MODE_MEM_INDIRECT;
+	modeByte[operandCount] = ECISC_MODE_MEM_INDIRECT;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
 	label[operandCount] = operand.substr(1,operand.size()-2);
@@ -295,7 +295,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     else if ( regexec(&preg_address_of, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Address of\n";
-	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
+	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | 15;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
 	label[operandCount] = operand.substr(1,operand.size()-1);
@@ -305,7 +305,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     else if ( regexec(&preg_immediate_int, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Immediate int\n";
-	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
+	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | 15;
 	statement::add_to_machineCodeSize(1 + get_dataSize());
 	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
 	sscanf(operand.c_str(), "%i", &operandValue[operandCount]);
@@ -315,7 +315,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     else if ( regexec(&preg_immediate_float, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Immediate float\n";
-	modeByte[operandCount] = MODE_AUTO_INCREMENT | 15;
+	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | 15;
 	statement::add_to_machineCodeSize(1 + get_dataSize());
 	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
 	sscanf(operand.c_str(), "%f", (float *)&operandValue[operandCount]);
@@ -325,7 +325,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     else if ( regexec(&preg_immediate_address, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Immediate address\n";
-	modeByte[operandCount] = MODE_MEM_DIRECT;
+	modeByte[operandCount] = ECISC_MODE_MEM_DIRECT;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 9);
 	sscanf(operand.c_str(), "(%i)", &operandValue[operandCount]);
@@ -383,7 +383,7 @@ void statement_ecisc :: outputMl(ostream &outfile)
 	(unsigned int)binaryOpcode << ' ';
     
     // Pseudo-instructions
-    if ( (binaryOpcode == OP_MOVL) && (statement::get_textOpcode() == "ret") )
+    if ( (binaryOpcode == ECISC_OP_MOVL) && (statement::get_textOpcode() == "ret") )
     {
 	// Make sure no arguments given
 	if ( statement::get_operandCount() != 0 )
@@ -404,11 +404,11 @@ void statement_ecisc :: outputMl(ostream &outfile)
 	
 	// Output the rest of the operand for modes that have
 	// more than a mode byte.
-	switch(MODE_BITS(modeByte[c]))
+	switch(ECISC_MODE_BITS(modeByte[c]))
 	{
-	    case    MODE_MEM_DIRECT:
-	    case    MODE_MEM_INDIRECT:
-	    case    MODE_OFFSET:
+	    case    ECISC_MODE_MEM_DIRECT:
+	    case    ECISC_MODE_MEM_INDIRECT:
+	    case    ECISC_MODE_OFFSET:
 		if ( label[c] != "" )
 		    outfile << '\002' << label[c] << ' ';
 		else    // Immediate value or offset, no label
@@ -417,8 +417,8 @@ void statement_ecisc :: outputMl(ostream &outfile)
 		break;
 		
 	    // Immediate mode
-	    case    MODE_AUTO_INCREMENT:
-		if ( REG_NUM(modeByte[c]) == 15 )
+	    case    ECISC_MODE_AUTO_INCREMENT:
+		if ( ECISC_REG_NUM(modeByte[c]) == 15 )
 		{
 		    if ( label[c] == "" )   // Immediate operand
 		    {
@@ -437,7 +437,7 @@ void statement_ecisc :: outputMl(ostream &outfile)
 
     // Pseudo-instructions
 #if 0   // Old method before switching jumps to PC <- EA instead of PC <- OP
-    if ( binaryOpcode == OP_MOVL )
+    if ( binaryOpcode == ECISC_OP_MOVL )
     {
 	if ( statement::get_textOpcode() == "j" )
 	{

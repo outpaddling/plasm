@@ -52,7 +52,7 @@ int     main(int argc,char *argv[])
 	else
 	{
 	    cerr << "Error: Source filename has no extension.\n"
-		<< "Should be '.epc'.\n";
+		<< "Should be '.ecisc'.\n";
 	    exit(EX_USAGE);
 	}
 	outfile.open(outfile_name);
@@ -86,7 +86,7 @@ int     assem(const char *prog_name, const char *filename,
     filename_extension = strrchr(filename, '.');
     if ( filename_extension != NULL )
     {
-	if ( strcmp(filename_extension, ".epc") == 0 )
+	if ( strcmp(filename_extension, ".ecisc") == 0 )
 	    stmnt = new statement_ecisc;
 	else if ( strcmp(filename_extension, ".68k") == 0 )
 	    stmnt = new statement68k;
@@ -95,14 +95,14 @@ int     assem(const char *prog_name, const char *filename,
 	else
 	{
 	    cerr << "Error: Unknown language: " << filename_extension << '\n';
-	    cerr << "Supported extensions are \".epc\" and \".68k\".\n";
+	    cerr << "Supported extensions are \".ecisc\" and \".68k\".\n";
 	    exit(EX_USAGE);
 	}
     }
     else
     {
 	cerr << "Error: filename must have an extension to indicate language.\n";
-	cerr << "Supported extensions are \".epc\" and \".68k\".\n";
+	cerr << "Supported extensions are \".ecisc\" and \".68k\".\n";
 	exit(EX_USAGE);
     }
 
