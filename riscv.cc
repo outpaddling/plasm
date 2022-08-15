@@ -71,7 +71,7 @@ void statement_riscv :: translateOpcode(void)
 	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
     }
     
-    cerr << binaryOpcode << endl;
+    cerr << "Opcode: " << hex << setw(8) << binaryOpcode << endl;
     
     // Add opcode to machineInstruction
     machineInstruction = binaryOpcode;
@@ -118,7 +118,7 @@ void    statement_riscv :: translateOperand(string &operand)
     
     label[operandCount] = "";
     
-    if (Debug) cerr << "Operand = " << operand << endl;
+    if (Debug) cerr << "Operand = " << operand << ' ';
     
     regcomp(&preg_reg_direct, pattern_reg_direct, REG_EXTENDED);
     regcomp(&preg_reg_indirect, pattern_reg_indirect, REG_EXTENDED);
