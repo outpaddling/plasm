@@ -36,7 +36,6 @@ class statement
     public:
 	istream         &read(istream &infile);
 	void            parse(void);
-	void            translateInstruction(string::size_type endLabel);
 	void            processDirective(string::size_type endLabel);
 	void            processInitializers(string::size_type endLabel);
 	void            printErrors(const char *filename,
@@ -46,6 +45,7 @@ class statement
 	bool            badLabel(void);
 
 	// Architecture-dependent: Must be implemented by derived class
+	virtual void    translateInstruction(string::size_type endLabel) = 0;
 	virtual void    translateOpcode(void) = 0;
 	virtual void    translateOperand(string &operand) = 0;
 	virtual bool    isComment(string::size_type start_post) = 0;
@@ -73,12 +73,17 @@ class statement
 	inline void     set_sourceCode(const string &newStr) { sourceCode = newStr; }
 	inline string   &get_sourceCode(void) { return sourceCode; }
 	inline mc_offset_t get_sourceLines(void) { return sourceLines; }
-    
-    private:
+
+    // Allow access from derived classes
+    protected:
 	bool            isAnInstruction;
 	statement_status_t  parseStatus;    // 0 if OK, bit codes for each error
-
 	unsigned int    operandCount;
+	string          sourceCode;
+	string          machineCode;        // Text form of MC
+	
+    private:
+
 	int             machineCodeCols;    // For alignment of source in list
 	int             currentDataType;    // Most recent .byte, etc. directive
 	mc_offset_t     sourceLines;        // Comments above + label + code
@@ -87,10 +92,8 @@ class statement
 	// Source code components
 	string          label;              // empty if no label
 	string          textOpcode;         // empty if not an instruction
-	string          sourceCode;
 	
 	// Architecture-independent machine code components
-	string          machineCode;        // Text form of MC
 	mc_offset_t     machineCodeSize;    // Size of machine code in bytes
 
 	// Other machine code components stored in an architecture-dependent

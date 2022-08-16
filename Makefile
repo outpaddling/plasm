@@ -129,10 +129,10 @@ depend:
 	    ${PRINTF} "\t\$${CXX} -c \$${CXXFLAGS} $${file}\n\n" >> Makefile.depend; \
 	done
 
-ecisc-table-init.cc:   ecisc-bits.h ecisc.h
+ecisc-table-init.cc:   ecisc-bits.h ecisc.h defs2init.awk
 	awk -f defs2init.awk ecisc-bits.h > ecisc-table-init.cc
 
-riscv-table-init.cc:   riscv-bits.h
+riscv-table-init.cc:   riscv-bits.h riscv.h defs2init.awk
 	awk -f defs2init.awk riscv-bits.h > riscv-table-init.cc
 
 ############################################################################

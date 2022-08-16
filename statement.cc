@@ -64,54 +64,6 @@ void statement :: parse(void)
 }
 
 
-void    statement :: translateInstruction(string::size_type startPos)
-
-{
-    stringstream        mcStream;
-    string              textOperand;
-    string::size_type   startOperand,
-			endOperand;
-    
-    isAnInstruction = true;
-    parseStatus = STATEMENT_OK;
-
-    // Translate opcode.  Needed to determine number and type of arguments.
-    translateOpcode();
-    
-    /*
-     *  This operand parsing is architecture-independent.  This isn't
-     *  the most efficient implementation, since the architecture-specific
-     *  operand translator will parse each operand a second time.  However,
-     *  it shouldn't cause any noticeable performance issues, and it
-     *  helps minimize code redundancy by letting the base class do
-     *  as much of the parsing as possible.
-     */
-    
-    // Parse out operands
-    operandCount = 0;
-    startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
-    while ( (operandCount < MAX_OPERANDS) &&
-	    (startOperand != string::npos) &&
-	    ! isComment(startOperand) )
-    {
-	endOperand = sourceCode.find_first_of(" \t,", startOperand);
-	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
-    
-	// Validate operand using derived class?
-	translateOperand(textOperand);
-	
-	// Next operand
-	++operandCount;
-	startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
-    }
-    
-    // Fixme: Get rid of outputMl and make the translate member functions
-    // build the string directly.
-    outputMl(mcStream);
-    machineCode = mcStream.str();
-}
-
-
 void    statement :: processDirective(string::size_type startPos)
 
 {
@@ -326,12 +278,16 @@ void    statement :: printErrors(const char *filename,
 
 {
     cerr << dec << filename << ", line " << line << ": ";
+    cerr << "parseStatus = " << parseStatus << ": ";
     
     if ( parseStatus & STATEMENT_MISSING_COLON )
 	cerr << "Label detected (text in column 1), but no colon found.\n";
     
     if ( parseStatus & STATEMENT_BAD_LABEL )
 	cerr << "Label contains illegal characters.  Only letters, digits, and '_' allowed.\n";
+
+    if ( parseStatus & STATEMENT_INVALID_OPCODE )
+	cerr << "Invalid opcode.\n";
 
     if ( parseStatus & STATEMENT_INVALID_OPERAND )
 	cerr << "Invalid operand.\n";

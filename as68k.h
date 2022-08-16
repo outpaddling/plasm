@@ -8,6 +8,7 @@
 class statement68k : public statement
 {
     public:
+	void    translateInstruction(string::size_type endLabel);
 	void    translateOpcode(void);
 	void    translateOperand(string &operand);
 	bool    isComment(string::size_type start_pos);

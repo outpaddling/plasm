@@ -15,6 +15,7 @@ class statement_ecisc : public statement
 {
     public:
 	statement_ecisc(void);
+	void    translateInstruction(string::size_type endLabel);
 	void    translateOpcode(void);
 	void    translateOperand(string &operand);
 	bool    isComment(string::size_type start_pos);

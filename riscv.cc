@@ -34,6 +34,12 @@ statement_riscv :: statement_riscv(void)
 }
 
 
+void    statement_riscv :: translateInstruction(string::size_type startPos)
+
+{
+}
+
+
 /***************************************************************************
  * Description:
  *  Convert instruction to binary

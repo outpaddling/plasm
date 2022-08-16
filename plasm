@@ -5,9 +5,14 @@ if [ $# != 1 ]; then
     exit 1
 fi
 
+if [ -e plasm.bin ]; then
+    plasm_bin=./plasm.bin
+else
+    plasm_bin=plasm.bin
+fi
 source="$1"
 pp_source="${source%.*}-pp.${source##*.}"
 papp "$source" > "$pp_source"
-plasm.bin "$pp_source"
+$plasm_bin "$pp_source"
 mv "${pp_source%.*}.bin" "${source%.*}.bin"
 

@@ -6,6 +6,12 @@
 
 using namespace std;
 
+void    statement68k :: translateInstruction(string::size_type startPos)
+
+{
+}
+
+
 /***************************************************************************
  * Description:
  *  Convert instruction to binary

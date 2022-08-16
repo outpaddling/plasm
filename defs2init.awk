@@ -6,7 +6,8 @@ BEGIN {
 }
 $2 ~ "OP_" {
     len = length($2);
-    opcode = substr($2, 4, len-3);
+    split($2, a, "_");
+    opcode = a[3];
     printf("    opcodeTable.push_back(opcode(\"%s\", %s));\n", tolower(opcode), $2);
 }
 END {

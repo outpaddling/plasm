@@ -17,7 +17,7 @@ export PATH=.:$PATH
 
 make
 
-./plasm test.epc
+./plasm test.ecisc
 pause
 more test.bin
 

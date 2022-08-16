@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <string>
 #include <algorithm>    // sort()
 #include <sysexits.h>
@@ -31,6 +32,54 @@ statement_ecisc :: statement_ecisc(void)
 	    << hex << setw(2) << setfill('0') << opcodeTable[c].get_bin()
 	    << '\n';
     */
+}
+
+
+void    statement_ecisc :: translateInstruction(string::size_type startPos)
+
+{
+    stringstream        mcStream;
+    string              textOperand;
+    string::size_type   startOperand,
+			endOperand;
+    
+    isAnInstruction = true;
+    parseStatus = STATEMENT_OK;
+
+    // Translate opcode.  Needed to determine number and type of arguments.
+    translateOpcode();
+    
+    /*
+     *  This operand parsing is architecture-independent.  This isn't
+     *  the most efficient implementation, since the architecture-specific
+     *  operand translator will parse each operand a second time.  However,
+     *  it shouldn't cause any noticeable performance issues, and it
+     *  helps minimize code redundancy by letting the base class do
+     *  as much of the parsing as possible.
+     */
+    
+    // Parse out operands
+    operandCount = 0;
+    startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
+    while ( (operandCount < MAX_OPERANDS) &&
+	    (startOperand != string::npos) &&
+	    ! isComment(startOperand) )
+    {
+	endOperand = sourceCode.find_first_of(" \t,", startOperand);
+	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
+    
+	// Validate operand using derived class?
+	translateOperand(textOperand);
+	
+	// Next operand
+	++operandCount;
+	startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
+    }
+    
+    // Fixme: Get rid of outputMl and make the translate member functions
+    // build the string directly.
+    outputMl(mcStream);
+    machineCode = mcStream.str();
 }
 
 
@@ -68,6 +117,7 @@ void statement_ecisc :: translateOpcode(void)
     {
 	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
     }
+    // cerr << "opcode_found = " << opcode_found << '\n';
     
     // Set data size for this instruction
     switch(binaryOpcode)
