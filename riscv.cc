@@ -82,7 +82,8 @@ void    statement_riscv :: translateRtype(string::size_type startPos)
     string              textOperand;
     string::size_type   startOperand,
 			endOperand;
-    
+
+    // FIXME: Reaplace loop with 3 explicit translations for rd, rs1, rs2
     // Parse out operands
     operandCount = 0;
     startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
