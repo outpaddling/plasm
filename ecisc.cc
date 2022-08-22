@@ -240,6 +240,7 @@ void    statement_ecisc :: translateOperand(string &operand)
     
     if (Debug) cerr << "Operand = " << operand << endl;
     
+    // FIXME: Do this once and store in the class object
     regcomp(&preg_reg_direct, pattern_reg_direct, REG_EXTENDED);
     regcomp(&preg_reg_indirect, pattern_reg_indirect, REG_EXTENDED);
     regcomp(&preg_auto_increment, pattern_auto_increment, REG_EXTENDED);

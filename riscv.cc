@@ -37,6 +37,87 @@ statement_riscv :: statement_riscv(void)
 void    statement_riscv :: translateInstruction(string::size_type startPos)
 
 {
+    isAnInstruction = true;
+    parseStatus = STATEMENT_OK;
+
+    // Translate opcode.  Needed to determine number and type of arguments.
+    translateOpcode();
+    cerr << "Machine instruction = " << hex << setw(8) << machineInstruction << '\n';
+    
+    /*
+     *  This operand parsing is architecture-independent.  This isn't
+     *  the most efficient implementation, since the architecture-specific
+     *  operand translator will parse each operand a second time.  However,
+     *  it shouldn't cause any noticeable performance issues, and it
+     *  helps minimize code redundancy by letting the base class do
+     *  as much of the parsing as possible.
+     */
+    
+    switch(machineInstruction)
+    {
+	case    RISCV_OP_ADD:
+	case    RISCV_OP_SUB:
+	case    RISCV_OP_ADDI:
+	    translateRtype(startPos);
+	    break;
+	case    RISCV_OP_LD:
+	    translateItype(startPos);
+	    break;
+	case    RISCV_OP_SD:
+	    translateStype(startPos);
+	    break;
+	default:
+	    cerr << "translateInstruction: Invalid opcode "
+		 << machineInstruction << '\n';
+	    exit(EX_DATAERR);
+	    break;  // Silance warning
+    }
+}
+
+
+void    statement_riscv :: translateRtype(string::size_type startPos)
+
+{
+    // stringstream        mcStream;
+    string              textOperand;
+    string::size_type   startOperand,
+			endOperand;
+    
+    // Parse out operands
+    operandCount = 0;
+    startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
+    while ( (operandCount < MAX_OPERANDS) &&
+	    (startOperand != string::npos) &&
+	    ! isComment(startOperand) )
+    {
+	endOperand = sourceCode.find_first_of(" \t,", startOperand);
+	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
+    
+	// Validate operand using derived class?
+	translateOperand(textOperand);
+	
+	// Next operand
+	++operandCount;
+	startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
+    }
+    
+    // Fixme: Get rid of outputMl and make the translate member functions
+    // build the string directly.
+    // outputMl(mcStream);
+    // machineCode = mcStream.str();
+    
+}
+
+
+void    statement_riscv :: translateItype(string::size_type startPos)
+
+{
+}
+
+
+void    statement_riscv :: translateStype(string::size_type startPos)
+
+{
 }
 
 
@@ -54,10 +135,10 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
 
 void statement_riscv :: translateOpcode(void)
 {
-    string opcode_sought = statement::get_textOpcode();
-    opcode key(opcode_sought, 0);
+    string text_opcode = statement::get_textOpcode();
+    opcode key(text_opcode, 0);
     
-    cerr << opcode_sought << endl;
+    cerr << "Text opcode: " << text_opcode << '\n';
     
     // Binary search opcode table
     vector<opcode>::const_iterator where =
@@ -77,7 +158,7 @@ void statement_riscv :: translateOpcode(void)
 	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
     }
     
-    cerr << "Opcode: " << hex << setw(8) << binaryOpcode << endl;
+    cerr << "Opcode: " << hex << setw(8) << binaryOpcode << '\n';
     
     // Add opcode to machineInstruction
     machineInstruction = binaryOpcode;
@@ -126,6 +207,7 @@ void    statement_riscv :: translateOperand(string &operand)
     
     if (Debug) cerr << "Operand = " << operand << ' ';
     
+    // FIXME: Do this once and store in the class object
     regcomp(&preg_reg_direct, pattern_reg_direct, REG_EXTENDED);
     regcomp(&preg_reg_indirect, pattern_reg_indirect, REG_EXTENDED);
     regcomp(&preg_numeric_offset, pattern_numeric_offset, REG_EXTENDED);
@@ -154,7 +236,7 @@ void    statement_riscv :: translateOperand(string &operand)
 	if (Debug) cerr << "Numeric offset\n";
 	endOffset = operand.find("(");
 	sscanf(operand.substr(endOffset).c_str(), "(x%d)", &reg_num);
-	if (Debug) cerr << "reg_num = " << reg_num << endl;
+	if (Debug) cerr << "reg_num = " << reg_num << '\n';
 	//cout << "Offset: " << label[operandCount] << ' ' << reg_num << '\n';
     }
     

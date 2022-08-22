@@ -52,14 +52,10 @@ void statement :: parse(void)
     endOpcode = sourceCode.find_first_of(" \t", startOpcode+1);
     textOpcode = sourceCode.substr(startOpcode, endOpcode-startOpcode);
     
-    if ( textOpcode[0] != '.' )
-    {
-	translateInstruction(endOpcode);
-    }
-    else
-    {
+    if ( textOpcode[0] == '.' )
 	processDirective(endOpcode);
-    }
+    else
+	translateInstruction(endOpcode);
     return;
 }
 

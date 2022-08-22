@@ -14,6 +14,9 @@ class statement_riscv : public statement
     public:
 	statement_riscv(void);
 	void    translateInstruction(string::size_type endLabel);
+	void    translateRtype(string::size_type endLabel);
+	void    translateItype(string::size_type endLabel);
+	void    translateStype(string::size_type endLabel);
 	void    translateOpcode(void);
 	void    translateOperand(string &operand);
 	bool    isComment(string::size_type start_pos);
