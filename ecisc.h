@@ -23,6 +23,7 @@ class statement_ecisc : public statement
 	inline int  get_dataSize(void) { return dataSize; }
 	void    initTable(void);
     private:
+	// FIXME: Can some of this just be local variables?
 	int             dataSize;
 	uint8_t         binaryOpcode;
 	uint8_t         modeByte[MAX_OPERANDS];

@@ -23,10 +23,6 @@ class statement_riscv : public statement
 	void    outputMl(ostream &outfile);
 	void    initTable(void);
     private:
-	//uint32_t        binaryOpcode;
-	string          label[MAX_OPERANDS];
-	uint32_t        binaryOpcode;
-	uint32_t        operandValue[MAX_OPERANDS]; // FIXME: Type??
 	uint32_t        machineInstruction;
 	vector<opcode>  opcodeTable;
 };

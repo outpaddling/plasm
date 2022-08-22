@@ -85,22 +85,23 @@ void    statement_riscv :: translateRtype(string::size_type startPos)
 
     // FIXME: Reaplace loop with 3 explicit translations for rd, rs1, rs2
     // Parse out operands
-    operandCount = 0;
     startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
-    while ( (operandCount < MAX_OPERANDS) &&
-	    (startOperand != string::npos) &&
-	    ! isComment(startOperand) )
+    if ( (startOperand != string::npos) || isComment(startOperand) )
+    {
+	cerr << "translateRtype(): Expected first operand.\n";
+	return;
+    }
+    else
     {
 	endOperand = sourceCode.find_first_of(" \t,", startOperand);
 	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
     
 	// Validate operand using derived class?
 	translateOperand(textOperand);
-	
-	// Next operand
-	++operandCount;
-	startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
+	// machineInstruction |= something << something;
     }
+
+    startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
     
     // Fixme: Get rid of outputMl and make the translate member functions
     // build the string directly.
@@ -138,6 +139,7 @@ void statement_riscv :: translateOpcode(void)
 {
     string text_opcode = statement::get_textOpcode();
     opcode key(text_opcode, 0);
+    uint32_t    binary_opcode = 0;
     
     cerr << "Text opcode: " << text_opcode << '\n';
     
@@ -150,7 +152,7 @@ void statement_riscv :: translateOpcode(void)
     string opcode_found = ((opcode)(*where)).get_assem();
     if ( opcode_found == statement::get_textOpcode() )
     {
-	binaryOpcode = ((opcode)(*where)).get_bin();
+	binary_opcode = ((opcode)(*where)).get_bin();
 	statement::add_to_machineCodeSize(1);   // 1 byte opcode
 	statement::add_to_machineCodeCols(3);   // opcode + ' '
     }
@@ -159,10 +161,10 @@ void statement_riscv :: translateOpcode(void)
 	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
     }
     
-    cerr << "Opcode: " << hex << setw(8) << binaryOpcode << '\n';
+    cerr << "Opcode: " << hex << setw(8) << binary_opcode << '\n';
     
     // Add opcode to machineInstruction
-    machineInstruction = binaryOpcode;
+    machineInstruction = binary_opcode;
 }
 
 
@@ -188,8 +190,7 @@ void    statement_riscv :: translateOperand(string &operand)
 		*pattern_immediate_int = "^[0-9]+|0x[0-9a-fA-F]+$",
 		*pattern_immediate_float = "^[0-9]*\\.[0-9]+(e[0-9]+)?$",
 		*pattern_immediate_address = "^\\([0-9]+\\)|\\(0x[0-9a-fA-F]+\\)$";
-    unsigned int        reg_num,
-			operandCount = statement::get_operandCount();
+    unsigned int        reg_num;
     string::size_type   endOffset;
     // Boost is a huge and annoying dependency for just pattern matching
     // so we just use regex
@@ -201,10 +202,10 @@ void    statement_riscv :: translateOperand(string &operand)
 		preg_immediate_float,
 		preg_immediate_address;
     regmatch_t  matches[1];
+    int         int_operand;
+    double      float_operand;
  
     Debug = true;
-    
-    label[operandCount] = "";
     
     if (Debug) cerr << "Operand = " << operand << ' ';
     
@@ -242,24 +243,25 @@ void    statement_riscv :: translateOperand(string &operand)
     }
     
     // Memory direct
+    // offset(register) or label
     else if ( regexec(&preg_mem_direct, operand.c_str(), 1, matches, 0) == 0 )
     {
+	// string branch_label = operand;
 	if (Debug) cerr << "Mem direct\n";
-	label[operandCount] = operand;
     }
     
     // Immediate
     else if ( regexec(&preg_immediate_int, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Immediate int\n";
-	sscanf(operand.c_str(), "%i", &operandValue[operandCount]);
+	sscanf(operand.c_str(), "%i", &int_operand);
     }
     
     // Immediate
     else if ( regexec(&preg_immediate_float, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Immediate float\n";
-	sscanf(operand.c_str(), "%f", (float *)&operandValue[operandCount]);
+	sscanf(operand.c_str(), "%lf", &float_operand);
     }
     
     else
