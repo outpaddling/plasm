@@ -65,6 +65,14 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
     {
 	case    RISCV_OP_ADD:
 	case    RISCV_OP_SUB:
+	case    RISCV_OP_XOR:
+	case    RISCV_OP_OR:
+	case    RISCV_OP_AND:
+	case    RISCV_OP_SLL:
+	case    RISCV_OP_SRL:
+	case    RISCV_OP_SRA:
+	case    RISCV_OP_SLT:
+	case    RISCV_OP_SLTU:
 	    translateRtype(startPos);
 	    break;
 	case    RISCV_OP_ADDI:

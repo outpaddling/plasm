@@ -12,6 +12,14 @@ main:   addi    x1, x1, -1
 	add     x2, x1, x0
 	sub     x3, x1, x31
 	sub     x3, x1, x32
+	sll     x1, x1, x2
+	slt     x1, x1, x2
+	sltu    x1, x1, x2
+	xor     x1, x1, x2
+	srl     x1, x1, x2
+	sra     x1, x1, x2
+	or      x1, x1, x2
+	and     x1, x1, x2
 	ld      x4, a
 	ld      x4, -1(x1)
 	ld      x4, 0(x31)
