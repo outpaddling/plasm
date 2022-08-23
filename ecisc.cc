@@ -20,6 +20,8 @@ statement_ecisc :: statement_ecisc(void)
      *  them to machine code.
      */
     initTable();
+    
+    machineCodeFieldWidth = 40;
 
     // Sort with STL sort function, so we can use binary_search()
     // on the mnemonic later when translating.
@@ -38,10 +40,10 @@ statement_ecisc :: statement_ecisc(void)
 void    statement_ecisc :: translateInstruction(string::size_type startPos)
 
 {
-    stringstream        mcStream;
-    string              textOperand;
-    string::size_type   startOperand,
-			endOperand;
+    stringstream        mc_stream;
+    string              text_operand;
+    string::size_type   start_operand,
+			end_operand;
     uint64_t            bits;
     
     isAnInstruction = true;
@@ -61,26 +63,24 @@ void    statement_ecisc :: translateInstruction(string::size_type startPos)
     
     // Parse out operands
     operandCount = 0;
-    startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
+    start_operand = sourceCode.find_first_not_of(" \t\n", startPos);
     while ( (operandCount < MAX_OPERANDS) &&
-	    (startOperand != string::npos) &&
-	    ! isComment(startOperand) )
+	    (start_operand != string::npos) &&
+	    ! isComment(start_operand) )
     {
-	endOperand = sourceCode.find_first_of(" \t,", startOperand);
-	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
+	end_operand = sourceCode.find_first_of(" \t,", start_operand);
+	text_operand = sourceCode.substr(start_operand, end_operand-start_operand);
     
 	// Validate operand using derived class?
-	translateOperand(textOperand, &bits);
+	translateOperand(text_operand, &bits);
 	
 	// Next operand
 	++operandCount;
-	startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
+	start_operand = sourceCode.find_first_not_of(" \t,", end_operand);
     }
     
-    // Fixme: Get rid of outputMl and make the translate member functions
-    // build the string directly.
-    outputMl(mcStream);
-    machineCode = mcStream.str();
+    outputMl(mc_stream);
+    machineCode = mc_stream.str();
 }
 
 
@@ -218,9 +218,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 		*pattern_immediate_int = "^[0-9]+|0x[0-9a-fA-F]+$",
 		*pattern_immediate_float = "^[0-9]*\\.[0-9]+(e[0-9]+)?$",
 		*pattern_immediate_address = "^\\([0-9]+\\)|\\(0x[0-9a-fA-F]+\\)$";
-    unsigned int        reg_num,
-			operandCount = statement::get_operandCount();
-    string::size_type   endLabel, endOffset;
+    unsigned int        reg_num;
+    string::size_type   end_label, end_offset;
     // Boost is a huge and annoying dependency for just pattern matching
     // so we just use regex
     regex_t     preg_reg_direct,
@@ -300,10 +299,10 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Num offset\n";
 	if (Debug) cerr << "numeric offset operand = " << operand << '\n';
-	endOffset = operand.find("(");
-	if (Debug) cerr << endOffset << '\n';
+	end_offset = operand.find("(");
+	if (Debug) cerr << end_offset << '\n';
 	sscanf(operand.c_str(), "%i", &(operandValue[operandCount]));
-	sscanf(operand.substr(endOffset).c_str(), "(r%d)", &reg_num);
+	sscanf(operand.substr(end_offset).c_str(), "(r%d)", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_OFFSET | reg_num;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 9);
@@ -312,11 +311,11 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     // Numeric offset
     else if ( regexec(&preg_numeric_offset, operand.c_str(), 1, matches, 0) == 0 )
     {
-	// FIXME: Use endOffset?
+	// FIXME: Use end_offset?
 	if (Debug) cerr << "Label offset\n";
-	endLabel = operand.find("(");
-	label[operandCount] = operand.substr(0, endLabel);
-	sscanf(operand.substr(endLabel).c_str(), "(r%d)", &reg_num);
+	end_label = operand.find("(");
+	label[operandCount] = operand.substr(0, end_label);
+	sscanf(operand.substr(end_label).c_str(), "(r%d)", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_OFFSET | reg_num;
 	statement::add_to_machineCodeSize(1 + 4);
 	statement::add_to_machineCodeCols(3 + 10);
@@ -421,7 +420,6 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 bool statement_ecisc :: isComment(string::size_type start_pos)
 
 {
-    string  &sourceCode = statement::get_sourceCode();
     string::size_type pos = sourceCode.find_first_not_of(" \t\n", start_pos);
     
     if ( (pos == string::npos) || (sourceCode[pos] == '#') )
@@ -490,7 +488,8 @@ void statement_ecisc :: outputMl(ostream &outfile)
 	}
     }
 
-    // Pseudo-instructions
+// Pseudo-instructions
+// Handle with papp?
 #if 0   // Old method before switching jumps to PC <- EA instead of PC <- OP
     if ( binaryOpcode == ECISC_OP_MOVL )
     {
@@ -510,4 +509,3 @@ void statement_ecisc :: outputMl(ostream &outfile)
     }
 #endif
 }
-

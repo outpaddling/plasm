@@ -148,7 +148,7 @@ int     assem(const char *prog_name, const char *filename,
 
 	    // Align source code
 	    for (int c = 0;
-		c < MACHINE_CODE_FIELD_WIDTH - stmnt->get_machineCodeCols(); ++c)
+		c < stmnt->get_machineCodeFieldWidth() - stmnt->get_machineCodeCols(); ++c)
 		transUnit.get_codeTempFile() << ' ';
 	    
 	    // Source code
@@ -166,7 +166,7 @@ int     assem(const char *prog_name, const char *filename,
 
 	    // Align source code
 	    for (int c = 0;
-		c < MACHINE_CODE_FIELD_WIDTH - stmnt->get_machineCodeCols(); ++c)
+		c < stmnt->get_machineCodeFieldWidth() - stmnt->get_machineCodeCols(); ++c)
 		transUnit.get_dataTempFile() << ' ';
 	    
 	    // Source code

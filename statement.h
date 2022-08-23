@@ -53,26 +53,27 @@ class statement
 	//virtual void    initTable(void) = 0;
 	
 	// Mutators, accessors, etc.
-	inline unsigned int    get_operandCount(void) { return operandCount; }
-	inline string   &get_label(void) { return label; }
-	inline void     set_label(const string &newLabel) { label = newLabel; }
-	inline void     increment_operandCount(void) { ++operandCount; }
-	inline void     add_to_machineCodeSize(unsigned int bytes)
+	unsigned int    get_operandCount(void) { return operandCount; }
+	string   &get_label(void) { return label; }
+	void     set_label(const string &newLabel) { label = newLabel; }
+	void     increment_operandCount(void) { ++operandCount; }
+	void     add_to_machineCodeSize(unsigned int bytes)
 			    { machineCodeSize += bytes; }
-	inline mc_offset_t get_machineCodeSize(void) { return machineCodeSize; }
-	inline void     add_parseStatus(statement_status_t status)
+	mc_offset_t get_machineCodeSize(void) { return machineCodeSize; }
+	void     add_parseStatus(statement_status_t status)
 			    { parseStatus |= status; }
-	inline int      get_machineCodeCols(void) { return machineCodeCols; }
-	inline void     add_to_machineCodeCols(unsigned int cols)
+	int      get_machineCodeCols(void) { return machineCodeCols; }
+	void     add_to_machineCodeCols(unsigned int cols)
 			    { machineCodeCols += cols; }
-	inline bool     isInstruction(void) { return isAnInstruction; }
-	inline string   &get_textOpcode(void) { return textOpcode; }
-	inline statement_status_t  get_parseStatus(void)
+	bool     isInstruction(void) { return isAnInstruction; }
+	string   &get_textOpcode(void) { return textOpcode; }
+	statement_status_t  get_parseStatus(void)
 			    { return parseStatus; }
-	inline string   &get_machineCode(void) { return machineCode; }
-	inline void     set_sourceCode(const string &newStr) { sourceCode = newStr; }
-	inline string   &get_sourceCode(void) { return sourceCode; }
-	inline mc_offset_t get_sourceLines(void) { return sourceLines; }
+	string   &get_machineCode(void) { return machineCode; }
+	void     set_sourceCode(const string &newStr) { sourceCode = newStr; }
+	string   &get_sourceCode(void) { return sourceCode; }
+	mc_offset_t get_sourceLines(void) { return sourceLines; }
+	int     get_machineCodeFieldWidth(void) { return machineCodeFieldWidth; }
 
     // Allow access from derived classes
     protected:
@@ -81,6 +82,7 @@ class statement
 	unsigned int    operandCount;
 	string          sourceCode;
 	string          machineCode;        // Text form of MC
+	int             machineCodeFieldWidth;
 	
     private:
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <sstream>
 #include <algorithm>    // sort()
 #include <sysexits.h>
 #include <regex.h>      // Operand parsing
@@ -20,6 +21,8 @@ statement_riscv :: statement_riscv(void)
      *  them to machine code.
      */
     initTable();
+    
+    machineCodeFieldWidth = 16;
 
     // Sort with STL sort function, so we can use binary_search()
     // on the mnemonic later when translating.
@@ -41,6 +44,8 @@ statement_riscv :: statement_riscv(void)
 void    statement_riscv :: translateInstruction(string::size_type startPos)
 
 {
+    stringstream        mc_stream;
+    
     isAnInstruction = true;
     parseStatus = STATEMENT_OK;
 
@@ -83,6 +88,9 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
 	binary_output(machineInstruction);
 	cerr << '\n';
     }
+    
+    outputMl(mc_stream);
+    machineCode = mc_stream.str();
 }
 
 

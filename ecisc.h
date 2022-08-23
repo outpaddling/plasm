@@ -9,8 +9,6 @@
 #include "statement.h"
 #include "ecisc-bits.h"
 
-#define MACHINE_CODE_FIELD_WIDTH    40
-
 class statement_ecisc : public statement
 {
     public:

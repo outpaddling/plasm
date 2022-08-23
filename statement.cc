@@ -30,10 +30,11 @@
 void statement :: parse(void)
 
 {
-    parseStatus = STATEMENT_OK;
     string::size_type   startOpcode,
 			endOpcode;
 
+    parseStatus = STATEMENT_OK;
+    
     /*
      *  Parsing out the opcode and operands, and building the symbol table
      *  is the same for all assembly languages, so it's handled by the base
@@ -109,12 +110,12 @@ void    statement :: processDirective(string::size_type startPos)
 void    statement :: processInitializers(string::size_type startPos)
 
 {
-    stringstream        mcStream;
-    string::size_type   valStart,
-			valEnd,
-			repeatPos;
-    string              valText,
-			repeatStr;
+    stringstream        mc_stream;
+    string::size_type   val_start,
+			val_end,
+			repeat_pos;
+    string              val_text,
+			repeat_str;
     char                *end;
     int                 repeat,
 			c,
@@ -123,148 +124,147 @@ void    statement :: processInitializers(string::size_type startPos)
     float               float_val;
     double              double_val;
     
-    valEnd = startPos + 1; // Prime loop
+    val_end = startPos + 1; // Prime loop
     
-    //cout << sourceCode << endl;
-    while ( (valStart = sourceCode.find_first_of("0123456789\"", valEnd))
+    while ( (val_start = sourceCode.find_first_of("0123456789\"", val_end))
 	    != string::npos )
     {
 	++initializers;
 	
-	if ( sourceCode[valStart] == '"' )
-	    valEnd = sourceCode.find('"', valStart+1) + 1;
+	if ( sourceCode[val_start] == '"' )
+	    val_end = sourceCode.find('"', val_start+1) + 1;
 	else
-	    valEnd = sourceCode.find_first_of(" \t,", valStart+1);
+	    val_end = sourceCode.find_first_of(" \t,", val_start+1);
 	
-	valText = sourceCode.substr(valStart, valEnd-valStart);
-	if ( (repeatPos=valText.find(':')) != string::npos )
+	val_text = sourceCode.substr(val_start, val_end-val_start);
+	if ( (repeat_pos=val_text.find(':')) != string::npos )
 	{
-	    ++repeatPos;
-	    repeatStr = valText.substr(repeatPos, valText.size()-repeatPos);
-	    sscanf(repeatStr.c_str(), "%i", &repeat);
+	    ++repeat_pos;
+	    repeat_str = val_text.substr(repeat_pos, val_text.size()-repeat_pos);
+	    sscanf(repeat_str.c_str(), "%i", &repeat);
 	}
 	else
 	    repeat = 1;
 	
-	mcStream << hex << setfill('0');
+	mc_stream << hex << setfill('0');
 
 	switch(currentDataType)
 	{
 	    case    TYPE_BYTE:
-		//sscanf(valText.c_str(), "%"SCNu64, &integer);
-		integer = strtoull(valText.c_str(), &end, 10);
+		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
-		    mcStream << setw(2) << integer << ' ';
+		    mc_stream << setw(2) << integer << ' ';
 		    machineCodeCols += 3;
 		    ++machineCodeSize;
 		}
 		break;
 	    
 	    case    TYPE_SHORT:
-		//sscanf(valText.c_str(), "%"SCNu64, &integer);
-		integer = strtoull(valText.c_str(), &end, 10);
+		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
-		    mcStream << setw(4) << integer << ' ';
+		    mc_stream << setw(4) << integer << ' ';
 		    machineCodeCols += 5;
 		    machineCodeSize += 2;
 		}
 		break;
 	    
 	    case    TYPE_LONG:
-		//sscanf(valText.c_str(), "%"SCNu64, &integer);
-		integer = strtoull(valText.c_str(), &end, 10);
+		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
-		    mcStream << setw(8) << integer << ' ';
+		    mc_stream << setw(8) << integer << ' ';
 		    machineCodeCols += 9;
 		    machineCodeSize += 4;
 		}
 		break;
 	    
 	    case    TYPE_QUAD:
-		//sscanf(valText.c_str(), "%"SCNu64, &integer);
-		integer = strtoull(valText.c_str(), &end, 10);
+		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
+		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
 		{
-		    mcStream << setw(16) << integer << ' ';
+		    mc_stream << setw(16) << integer << ' ';
 		    machineCodeCols += 17;
 		    machineCodeSize += 8;
 		}
 		break;
 	    
 	    case    TYPE_FLOAT:
-		sscanf(valText.c_str(), "%f", &float_val);
+		sscanf(val_text.c_str(), "%f", &float_val);
 		for (c = 0; c < repeat; ++c)
 		{
-		    mcStream << setw(8) << *(uint32_t *)&float_val << ' ';
+		    mc_stream << setw(8) << *(uint32_t *)&float_val << ' ';
 		    machineCodeCols += 9;
 		    machineCodeSize += 4;
 		}
 		break;
 	    
 	    case    TYPE_DOUBLE:
-		sscanf(valText.c_str(), "%lf", &double_val);
+		sscanf(val_text.c_str(), "%lf", &double_val);
 		for (c = 0; c < repeat; ++c)
 		{
-		    mcStream << setw(16) << *(uint32_t *)&double_val << ' ';
+		    mc_stream << setw(16) << *(uint32_t *)&double_val << ' ';
 		    machineCodeCols += 17;
 		    machineCodeSize += 8;
 		}
 		break;
 	    
 	    case    TYPE_STRING:
-		//mcStream << valText << '\n';
-		for (const char *p = valText.c_str() + 1; *p != '"'; ++p)
+		//mc_stream << val_text << '\n';
+		for (const char *p = val_text.c_str() + 1; *p != '"'; ++p)
 		{
 		    machineCodeSize += 1;
 		    machineCodeCols += 3;
 		    if ( *p != '\\' )
-			mcStream << (int)*p;
+			mc_stream << (int)*p;
 		    else
 		    {
 			++p;
 			switch(*p)
 			{
 			    case    '0':
-				mcStream << setw(2) << 0;
+				mc_stream << setw(2) << 0;
 				break;
 			    
 			    case    'a':
-				mcStream << setw(2) << 7;
+				mc_stream << setw(2) << 7;
 				break;
 			    
 			    case    'b':
-				mcStream << setw(2) << 8;
+				mc_stream << setw(2) << 8;
 				break;
 			    
 			    case    't':
-				mcStream << setw(2) << 9;
+				mc_stream << setw(2) << 9;
 				break;
 			    
 			    case    'n':
-				mcStream << setw(2) << 10;
+				mc_stream << setw(2) << 10;
 				break;
 			    
 			    case    'f':
-				mcStream << setw(2) << 12;
+				mc_stream << setw(2) << 12;
 				break;
 			    
 			    case    'r':
-				mcStream << setw(2) << 13;
+				mc_stream << setw(2) << 13;
 				break;
 			    default:
-				mcStream << setw(2) << (int)*p;
+				mc_stream << setw(2) << (int)*p;
 				break;
 			}
 		    }
-		    mcStream << ' ';
+		    mc_stream << ' ';
 		}
 		break;
 	}
     }
-    machineCode = mcStream.str();
+    machineCode = mc_stream.str();
     
     if ( initializers == 0 )
 	add_parseStatus(STATEMENT_MISSING_INITIALIZER);
@@ -357,4 +357,3 @@ istream    &statement :: read(istream &infile)
     ++sourceLines;
     return infile;
 }
-
