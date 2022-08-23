@@ -16,6 +16,7 @@ class statement_riscv : public statement
 	void    translateInstruction(string::size_type endLabel);
 	void    translateRtype(string::size_type endLabel);
 	void    translateItype(string::size_type endLabel);
+	void    translateLoad(string::size_type endLabel);
 	void    translateStype(string::size_type endLabel);
 	void    translateOpcode(void);
 	int     translateOperand(string &operand, uint64_t *bits);

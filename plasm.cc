@@ -23,7 +23,7 @@ int     main(int argc,char *argv[])
     for (c = 1; (c < argc) && (*argv[c] == '-'); ++c)
     {
 	cerr << argv[c] << endl;
-	if ( strcmp(argv[c], "-d") == 0 )
+	if ( strcmp(argv[c], "--debug") == 0 )
 	{
 	    Debug = true;
 	    cerr << "Debug on.\n";

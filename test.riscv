@@ -8,10 +8,11 @@ y:  .double 6.02e23
 
 p:  .string "Hello, world!\n\0"
 
-main:   addi    x1, x1, 1
+main:   addi    x1, x1, -1
 	add     x2, x1, x0
-	sub     x3, x1, x2
+	sub     x3, x1, x31
+	sub     x3, x1, x32
 	ld      x4, a
-	ld      x4, -10(x31)
-	ld      x4, 10(x32)
-	sd      x4, a
+	ld      x4, -1(x1)
+	ld      x4, 0(x31)
+	sd      x4, -1(x1)
