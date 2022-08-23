@@ -18,7 +18,7 @@ class statement_riscv : public statement
 	void    translateItype(string::size_type endLabel);
 	void    translateStype(string::size_type endLabel);
 	void    translateOpcode(void);
-	void    translateOperand(string &operand);
+	int     translateOperand(string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);
 	void    outputMl(ostream &outfile);
 	void    initTable(void);

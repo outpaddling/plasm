@@ -41,9 +41,10 @@ void statement68k :: translateOpcode(void)
  *  Nov 2009    J Bacon
  ***************************************************************************/
 
-void    statement68k :: translateOperand(string &operand)
+int     statement68k :: translateOperand(string &operand, uint64_t *bits)
 
 {
+    return 0;
 }
 
 

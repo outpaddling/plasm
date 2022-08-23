@@ -5,6 +5,7 @@
 #include <sysexits.h>
 #include <regex.h>      // Operand parsing
 #include "statement.h"
+#include "plasm.h"
 
 extern bool Debug;
 
@@ -42,7 +43,6 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
 
     // Translate opcode.  Needed to determine number and type of arguments.
     translateOpcode();
-    cerr << "Machine instruction = " << hex << setw(8) << machineInstruction << '\n';
     
     /*
      *  This operand parsing is architecture-independent.  This isn't
@@ -57,9 +57,9 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
     {
 	case    RISCV_OP_ADD:
 	case    RISCV_OP_SUB:
-	case    RISCV_OP_ADDI:
 	    translateRtype(startPos);
 	    break;
+	case    RISCV_OP_ADDI:
 	case    RISCV_OP_LD:
 	    translateItype(startPos);
 	    break;
@@ -72,6 +72,9 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
 	    exit(EX_DATAERR);
 	    break;  // Silance warning
     }
+    cerr << "Machine instruction = 0x" << hex << setw(8) << machineInstruction << '\n';
+    binary_output(machineInstruction);
+    cerr << '\n';
 }
 
 
@@ -82,11 +85,11 @@ void    statement_riscv :: translateRtype(string::size_type startPos)
     string              textOperand;
     string::size_type   startOperand,
 			endOperand;
+    uint64_t            bits;
 
-    // FIXME: Reaplace loop with 3 explicit translations for rd, rs1, rs2
-    // Parse out operands
+    // First operand: rd
     startOperand = sourceCode.find_first_not_of(" \t\n", startPos);
-    if ( (startOperand != string::npos) || isComment(startOperand) )
+    if ( (startOperand == string::npos) || isComment(startOperand) )
     {
 	cerr << "translateRtype(): Expected first operand.\n";
 	return;
@@ -97,11 +100,52 @@ void    statement_riscv :: translateRtype(string::size_type startPos)
 	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
     
 	// Validate operand using derived class?
-	translateOperand(textOperand);
-	// machineInstruction |= something << something;
+	if ( translateOperand(textOperand, &bits) != RISCV_MODE_REG_DIRECT )
+	{
+	    cerr << "translateRtype(): First operand is not a register.\n";
+	}
+	machineInstruction |= bits << 7;
     }
 
+    // Second operand: rs1
     startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
+    if ( (startOperand == string::npos) || isComment(startOperand) )
+    {
+	cerr << "translateRtype(): Expected second operand.\n";
+	return;
+    }
+    else
+    {
+	endOperand = sourceCode.find_first_of(" \t,", startOperand);
+	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
+    
+	// Validate operand using derived class?
+	if ( translateOperand(textOperand, &bits) != RISCV_MODE_REG_DIRECT )
+	{
+	    cerr << "translateRtype(): Second operand is not a register.\n";
+	}
+	machineInstruction |= bits << 15;
+    }
+    
+    // Third operand: rs2
+    startOperand = sourceCode.find_first_not_of(" \t,", endOperand);
+    if ( (startOperand == string::npos) || isComment(startOperand) )
+    {
+	cerr << "translateRtype(): Expected third operand.\n";
+	return;
+    }
+    else
+    {
+	endOperand = sourceCode.find_first_of(" \t,", startOperand);
+	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
+    
+	// Validate operand using derived class?
+	if ( translateOperand(textOperand, &bits) != RISCV_MODE_REG_DIRECT )
+	{
+	    cerr << "translateRtype(): Third operand is not a register.\n";
+	}
+	machineInstruction |= bits << 20;
+    }
     
     // Fixme: Get rid of outputMl and make the translate member functions
     // build the string directly.
@@ -180,7 +224,7 @@ void statement_riscv :: translateOpcode(void)
  *  July 2022    J Bacon
  ***************************************************************************/
 
-void    statement_riscv :: translateOperand(string &operand)
+int     statement_riscv :: translateOperand(string &operand, uint64_t *bits)
 
 {
     static char const *pattern_reg_direct = "^[Xx][0-9][0-9]?$",
@@ -204,6 +248,7 @@ void    statement_riscv :: translateOperand(string &operand)
     regmatch_t  matches[1];
     int         int_operand;
     double      float_operand;
+    int         addressing_mode = RISCV_MODE_UNKNOWN;
  
     Debug = true;
     
@@ -221,15 +266,17 @@ void    statement_riscv :: translateOperand(string &operand)
     // Register direct
     if ( regexec(&preg_reg_direct, operand.c_str(), 1, matches, 0) == 0 )
     {
+	addressing_mode = RISCV_MODE_REG_DIRECT;
 	if (Debug) cerr << "Reg direct\n";
-	sscanf(operand.c_str(), "r%d", &reg_num);
+	sscanf(operand.c_str(), "x%d", &reg_num);
+	*bits = reg_num;
     }
     
     // Register indirect
     else if ( regexec(&preg_reg_indirect, operand.c_str(), 1, matches, 0) == 0 )
     {
 	if (Debug) cerr << "Reg indirect\n";
-	sscanf(operand.c_str(), "(r%d)", &reg_num);
+	sscanf(operand.c_str(), "(x%d)", &reg_num);
     }
     
     // Numeric_offset
@@ -274,6 +321,8 @@ void    statement_riscv :: translateOperand(string &operand)
     regfree(&preg_immediate_int);
     regfree(&preg_immediate_float);
     regfree(&preg_immediate_address);
+    
+    return addressing_mode;
 }
 
 

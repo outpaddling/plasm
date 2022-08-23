@@ -17,7 +17,7 @@ class statement_ecisc : public statement
 	statement_ecisc(void);
 	void    translateInstruction(string::size_type endLabel);
 	void    translateOpcode(void);
-	void    translateOperand(string &operand);
+	int     translateOperand(string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);
 	void    outputMl(ostream &outfile);
 	inline int  get_dataSize(void) { return dataSize; }

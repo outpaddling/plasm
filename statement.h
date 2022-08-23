@@ -47,7 +47,7 @@ class statement
 	// Architecture-dependent: Must be implemented by derived class
 	virtual void    translateInstruction(string::size_type endLabel) = 0;
 	virtual void    translateOpcode(void) = 0;
-	virtual void    translateOperand(string &operand) = 0;
+	virtual int     translateOperand(string &operand, uint64_t *bits) = 0;
 	virtual bool    isComment(string::size_type start_post) = 0;
 	virtual void    outputMl(ostream &outfile) = 0;
 	//virtual void    initTable(void) = 0;

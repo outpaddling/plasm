@@ -40,6 +40,8 @@ void statement :: parse(void)
      *  class.
      */
     
+    cerr << "\nSource code: " << sourceCode << '\n';
+    
     // Initialize for new instruction
     machineCodeSize = 0;
     machineCodeCols = 0;

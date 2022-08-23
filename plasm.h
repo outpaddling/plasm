@@ -12,6 +12,7 @@ using namespace std;
 
 int     assem(const char *prog_name, const char *filename, istream *infile, ostream *outfile);
 void    usage(char *argv[]);
+void    binary_output(uint32_t n);
 
 #endif
 

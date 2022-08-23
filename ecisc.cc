@@ -42,6 +42,7 @@ void    statement_ecisc :: translateInstruction(string::size_type startPos)
     string              textOperand;
     string::size_type   startOperand,
 			endOperand;
+    uint64_t            bits;
     
     isAnInstruction = true;
     parseStatus = STATEMENT_OK;
@@ -69,7 +70,7 @@ void    statement_ecisc :: translateInstruction(string::size_type startPos)
 	textOperand = sourceCode.substr(startOperand, endOperand-startOperand);
     
 	// Validate operand using derived class?
-	translateOperand(textOperand);
+	translateOperand(textOperand, &bits);
 	
 	// Next operand
 	++operandCount;
@@ -202,7 +203,7 @@ void statement_ecisc :: translateOpcode(void)
  *  May 2010    J Bacon
  ***************************************************************************/
 
-void    statement_ecisc :: translateOperand(string &operand)
+int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 
 {
     static char const *pattern_reg_direct = "^[Rr][0-9][0-5]?$",
@@ -398,6 +399,9 @@ void    statement_ecisc :: translateOperand(string &operand)
     regfree(&preg_immediate_int);
     regfree(&preg_immediate_float);
     regfree(&preg_immediate_address);
+
+    // Return addressing mode like RISC-V?
+    return 0;
 }
 
 

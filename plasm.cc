@@ -243,3 +243,15 @@ void    usage(char *argv[])
     exit(EX_USAGE);
 }
 
+
+void    binary_output(uint32_t n)
+
+{
+    int     c;
+    
+    for (c = 0; c < 32; ++c, n <<= 1)
+	if ( n & 0x80000000 )
+	    cerr << '1';
+	else
+	    cerr << '0';
+}

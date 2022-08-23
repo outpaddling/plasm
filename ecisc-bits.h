@@ -118,7 +118,8 @@
 #define ECISC_OP_HALT     0xff
 
 /*
- *  Addressing modes
+ *  Addressing modes.  Upper 4 bits of mode byte.  Lower 4 are register #.
+ *  Similar to VAX.
  */
 
 #define ECISC_MODE_REG_DIRECT         0x00

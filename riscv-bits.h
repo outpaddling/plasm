@@ -15,3 +15,7 @@
 #define RISCV_OP_ADDI   0x00000013  // ------------  ----- 000 ----- 0010011
 #define RISCV_OP_LD     0x00003003  // ------------  ----- 011 ----- 0000011
 #define RISCV_OP_SD     0x00003023  // ------- ----- ----- 011 00000 0100011
+
+// Not bits in a mode by like ECISC
+#define RISCV_MODE_UNKNOWN      0
+#define RISCV_MODE_REG_DIRECT   1
