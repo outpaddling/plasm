@@ -37,7 +37,8 @@ statement_ecisc :: statement_ecisc(void)
 }
 
 
-int     statement_ecisc :: translateInstruction(string::size_type startPos)
+int     statement_ecisc :: translateInstruction(TranslationUnit *transUnit,
+						string::size_type startPos)
 
 {
     stringstream        mc_stream;

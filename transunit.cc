@@ -69,3 +69,10 @@ void    TranslationUnit :: output_dataOffset(void)
     dataTempFile << hex << setw(OFFSET_WIDTH) << setfill('0') << dataOffset << ' ';
 }
 
+
+void    TranslationUnit :: errorMessage(const char *message, string sourceCode)
+
+{
+    cerr << "Line " << sourceLine << ": " << message << '\n';
+    cerr << sourceCode << '\n';
+}

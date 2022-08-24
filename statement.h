@@ -37,8 +37,8 @@ class statement
 {
     public:
 	istream         &read(istream &infile);
-	void            parse(mc_offset_t source_line);
-	void            processDirective(string::size_type endLabel);
+	void            parse(TranslationUnit *transUnit);
+	void            processDirective(TranslationUnit *transUnit, string::size_type endLabel);
 	void            processInitializers(string::size_type endLabel);
 	void            printErrors(const char *filename,
 				    unsigned long line);
@@ -47,7 +47,7 @@ class statement
 	bool            badLabel(void);
 
 	// Architecture-dependent: Must be implemented by derived class
-	virtual int     translateInstruction(string::size_type endLabel) = 0;
+	virtual int     translateInstruction(TranslationUnit *transUnit, string::size_type endLabel) = 0;
 	virtual int     translateOpcode(void) = 0;
 	virtual int     translateOperand(string &operand, uint64_t *bits) = 0;
 	virtual bool    isComment(string::size_type start_post) = 0;

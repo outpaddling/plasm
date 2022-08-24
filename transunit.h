@@ -19,17 +19,18 @@ class TranslationUnit
 	void            output_codeOffset(void);
 	void            output_dataOffset(void);
 	
-	inline uint32_t get_sourceLine(void) { return sourceLine; }
-	inline void     set_sourceLine(uint32_t newLine) { sourceLine = newLine; }
-	inline void     add_to_sourceLine(mc_offset_t n) { sourceLine += n; }
+	uint32_t get_sourceLine(void) { return sourceLine; }
+	void     set_sourceLine(uint32_t newLine) { sourceLine = newLine; }
+	void     add_to_sourceLine(mc_offset_t n) { sourceLine += n; }
 	
-	inline uint32_t get_codeOffset(void) { return codeOffset; }
-	inline fstream  &get_codeTempFile(void) { return codeTempFile; }
-	inline void     add_to_codeOffset(mc_offset_t n) { codeOffset += n; }
+	uint32_t get_codeOffset(void) { return codeOffset; }
+	fstream  &get_codeTempFile(void) { return codeTempFile; }
+	void     add_to_codeOffset(mc_offset_t n) { codeOffset += n; }
 
-	inline uint32_t get_dataOffset(void) { return dataOffset; }
-	inline fstream  &get_dataTempFile(void) { return dataTempFile; }
-	inline void     add_to_dataOffset(mc_offset_t n) { dataOffset += n; }
+	uint32_t get_dataOffset(void) { return dataOffset; }
+	fstream &get_dataTempFile(void) { return dataTempFile; }
+	void    add_to_dataOffset(mc_offset_t n) { dataOffset += n; }
+	void    errorMessage(const char *message, string sourceCode);
 
     private:
 	mc_offset_t sourceLine;

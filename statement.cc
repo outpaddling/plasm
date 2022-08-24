@@ -29,7 +29,7 @@
 
 extern bool Debug;
 
-void statement :: parse(mc_offset_t source_lie)
+void statement :: parse(TranslationUnit *transUnit)
 
 {
     string::size_type   startOpcode,
@@ -58,14 +58,15 @@ void statement :: parse(mc_offset_t source_lie)
     textOpcode = sourceCode.substr(startOpcode, endOpcode-startOpcode);
     
     if ( textOpcode[0] == '.' )
-	processDirective(endOpcode);
+	processDirective(transUnit, endOpcode);
     else
-	translateInstruction(endOpcode);
+	translateInstruction(transUnit, endOpcode);
     return;
 }
 
 
-void    statement :: processDirective(string::size_type startPos)
+void    statement :: processDirective(TranslationUnit *transUnit,
+				      string::size_type startPos)
 
 {
     isAnInstruction = false;

@@ -13,8 +13,8 @@ class statement_riscv : public statement
 {
     public:
 	statement_riscv(void);
-	int     translateInstruction(string::size_type endLabel);
-	int     translateRtype(string::size_type endLabel);
+	int     translateInstruction(TranslationUnit *transUnit, string::size_type endLabel);
+	int     translateRtype(TranslationUnit *transUnit, string::size_type endLabel);
 	int     translateItype(string::size_type endLabel);
 	int     translateLoad(string::size_type endLabel);
 	int     translateStype(string::size_type endLabel);

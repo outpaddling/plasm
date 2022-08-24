@@ -124,7 +124,7 @@ int     assem(const char *prog_name, const char *filename,
 	}
 
 	// Parse line into label, opcode, arguments
-	stmnt->parse(transUnit.get_sourceLine());
+	stmnt->parse(&transUnit);
 	
 	if ( stmnt->get_parseStatus() != STATEMENT_OK )
 	{

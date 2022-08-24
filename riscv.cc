@@ -41,7 +41,8 @@ statement_riscv :: statement_riscv(void)
 }
 
 
-int     statement_riscv :: translateInstruction(string::size_type startPos)
+int     statement_riscv :: translateInstruction(TranslationUnit *transUnit,
+						string::size_type startPos)
 
 {
     stringstream        mc_stream;
@@ -74,7 +75,7 @@ int     statement_riscv :: translateInstruction(string::size_type startPos)
 	case    RISCV_OP_SRA:
 	case    RISCV_OP_SLT:
 	case    RISCV_OP_SLTU:
-	    translateRtype(startPos);
+	    translateRtype(transUnit, startPos);
 	    break;
 	
 	// I-type
@@ -135,7 +136,8 @@ int     statement_riscv :: translateInstruction(string::size_type startPos)
 }
 
 
-int     statement_riscv :: translateRtype(string::size_type startPos)
+int     statement_riscv :: translateRtype(TranslationUnit *transUnit,
+					  string::size_type startPos)
 
 {
     string              text_operand;
@@ -147,7 +149,7 @@ int     statement_riscv :: translateRtype(string::size_type startPos)
     start_operand = sourceCode.find_first_not_of(" \t\n", startPos);
     if ( (start_operand == string::npos) || isComment(start_operand) )
     {
-	cerr << "translateRtype(): Expected first operand.\n";
+	transUnit->errorMessage("Expected first operand.", sourceCode);
 	return STATEMENT_OPERAND_COUNT;
     }
     else
@@ -172,7 +174,7 @@ int     statement_riscv :: translateRtype(string::size_type startPos)
     start_operand = sourceCode.find_first_not_of(" \t,", end_operand);
     if ( (start_operand == string::npos) || isComment(start_operand) )
     {
-	cerr << "translateRtype(): Expected second operand.\n";
+	transUnit->errorMessage("Expected second operand.", sourceCode);
 	return STATEMENT_OPERAND_COUNT;
     }
     else
@@ -183,7 +185,7 @@ int     statement_riscv :: translateRtype(string::size_type startPos)
 	// Validate operand using derived class?
 	if ( translateOperand(text_operand, &bits) != RISCV_MODE_REG_DIRECT )
 	{
-	    cerr << "translateRtype(): Second operand is not a register.\n";
+	    transUnit->errorMessage("Second operand is not a register.", sourceCode);
 	    return STATEMENT_INVALID_OPERAND;
 	}
 	machineInstruction |= bits << 15;
@@ -193,7 +195,7 @@ int     statement_riscv :: translateRtype(string::size_type startPos)
     start_operand = sourceCode.find_first_not_of(" \t,", end_operand);
     if ( (start_operand == string::npos) || isComment(start_operand) )
     {
-	cerr << "translateRtype(): Expected third operand.\n";
+	transUnit->errorMessage("Expected third operand.", sourceCode);
 	return STATEMENT_OPERAND_COUNT;
     }
     else
@@ -204,7 +206,7 @@ int     statement_riscv :: translateRtype(string::size_type startPos)
 	// Validate operand using derived class?
 	if ( translateOperand(text_operand, &bits) != RISCV_MODE_REG_DIRECT )
 	{
-	    cerr << "translateRtype(): Third operand is not a register.\n";
+	    transUnit->errorMessage("Third operand is not a register.", sourceCode);
 	    return STATEMENT_INVALID_OPERAND;
 	}
 	machineInstruction |= bits << 20;
@@ -513,7 +515,7 @@ int     statement_riscv :: translateOperand(string &operand, uint64_t *bits)
 	if ( (reg_num >= 0) && (reg_num <= 31) )
 	    *bits = reg_num;
 	else
-	    cerr << "translateOperand(): Invalid register: " << reg_num << '\n';
+	    cerr << "Invalid register: " << reg_num << '\n';
     }
     
     // Register indirect
@@ -535,11 +537,11 @@ int     statement_riscv :: translateOperand(string &operand, uint64_t *bits)
 	    if ( (reg_num >= 0) && (reg_num <= 31) )
 		*bits = reg_num | int_operand << 5;
 	    else
-		cerr << "translateOperand(): Invalid register: " << reg_num << '\n';
+		cerr << "Invalid register: " << reg_num << '\n';
 	}
 	else
 	{
-	    cerr << "trsnslateOperand(): Invalid offset: " << int_operand << '\n';
+	    cerr << "Invalid offset: " << int_operand << '\n';
 	    cerr << "Range is -2048 to +2047.\n";
 	}
     }
