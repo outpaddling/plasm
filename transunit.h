@@ -32,9 +32,9 @@ class TranslationUnit
 	inline void     add_to_dataOffset(mc_offset_t n) { dataOffset += n; }
 
     private:
-	mc_offset_t    sourceLine;
-	mc_offset_t    codeOffset;
-	mc_offset_t    dataOffset;
+	mc_offset_t sourceLine;
+	mc_offset_t codeOffset;
+	mc_offset_t dataOffset;
 	char        *codeFileName;
 	char        *dataFileName;
 	fstream     codeTempFile;

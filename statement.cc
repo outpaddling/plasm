@@ -27,7 +27,9 @@
  *
  ***************************************************************************/
 
-void statement :: parse(void)
+extern bool Debug;
+
+void statement :: parse(mc_offset_t source_lie)
 
 {
     string::size_type   startOpcode,
@@ -41,7 +43,7 @@ void statement :: parse(void)
      *  class.
      */
     
-    cerr << "\nSource code: " << sourceCode << '\n';
+    if ( Debug ) cerr << "\nSource code: " << sourceCode << '\n';
     
     // Initialize for new instruction
     machineCodeSize = 0;
@@ -298,6 +300,9 @@ void    statement :: printErrors(const char *filename,
 
     if ( parseStatus & STATEMENT_INVALID_DIRECTIVE )
 	cerr << "Invalid directive.\n";
+
+    if ( parseStatus & STATEMENT_EXPECTED_REGISTER )
+	cerr << "Expected a register.\n";
 
     cerr << sourceCode << '\n';
 }

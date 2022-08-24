@@ -13,12 +13,12 @@ class statement_riscv : public statement
 {
     public:
 	statement_riscv(void);
-	void    translateInstruction(string::size_type endLabel);
-	void    translateRtype(string::size_type endLabel);
-	void    translateItype(string::size_type endLabel);
-	void    translateLoad(string::size_type endLabel);
-	void    translateStype(string::size_type endLabel);
-	void    translateOpcode(void);
+	int     translateInstruction(string::size_type endLabel);
+	int     translateRtype(string::size_type endLabel);
+	int     translateItype(string::size_type endLabel);
+	int     translateLoad(string::size_type endLabel);
+	int     translateStype(string::size_type endLabel);
+	int     translateOpcode(void);
 	int     translateOperand(string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);
 	void    outputMl(ostream &outfile);

@@ -20,6 +20,8 @@ using namespace std;
 #define STATEMENT_MISSING_INITIALIZER   0x00000020
 #define STATEMENT_OPERAND_COUNT         0x00000040
 #define STATEMENT_INVALID_DIRECTIVE     0x00000080
+#define STATEMENT_EXPECTED_REGISTER     0x00000100
+#define STATEMENT_EXPECTED_OFFSET       0x00000200
 
 #define TYPE_BYTE   1
 #define TYPE_SHORT  2
@@ -35,7 +37,7 @@ class statement
 {
     public:
 	istream         &read(istream &infile);
-	void            parse(void);
+	void            parse(mc_offset_t source_line);
 	void            processDirective(string::size_type endLabel);
 	void            processInitializers(string::size_type endLabel);
 	void            printErrors(const char *filename,
@@ -45,8 +47,8 @@ class statement
 	bool            badLabel(void);
 
 	// Architecture-dependent: Must be implemented by derived class
-	virtual void    translateInstruction(string::size_type endLabel) = 0;
-	virtual void    translateOpcode(void) = 0;
+	virtual int     translateInstruction(string::size_type endLabel) = 0;
+	virtual int     translateOpcode(void) = 0;
 	virtual int     translateOperand(string &operand, uint64_t *bits) = 0;
 	virtual bool    isComment(string::size_type start_post) = 0;
 	virtual void    outputMl(ostream &outfile) = 0;

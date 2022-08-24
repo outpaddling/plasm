@@ -6,9 +6,10 @@
 
 using namespace std;
 
-void    statement68k :: translateInstruction(string::size_type startPos)
+int     statement68k :: translateInstruction(string::size_type startPos)
 
 {
+    return STATEMENT_OK;
 }
 
 
@@ -24,8 +25,9 @@ void    statement68k :: translateInstruction(string::size_type startPos)
  *  Nov 2009    J Bacon
  ***************************************************************************/
 
-void statement68k :: translateOpcode(void)
+int     statement68k :: translateOpcode(void)
 {
+    return STATEMENT_OK;
 }
 
 

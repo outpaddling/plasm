@@ -37,7 +37,7 @@ statement_ecisc :: statement_ecisc(void)
 }
 
 
-void    statement_ecisc :: translateInstruction(string::size_type startPos)
+int     statement_ecisc :: translateInstruction(string::size_type startPos)
 
 {
     stringstream        mc_stream;
@@ -81,6 +81,8 @@ void    statement_ecisc :: translateInstruction(string::size_type startPos)
     
     outputMl(mc_stream);
     machineCode = mc_stream.str();
+    
+    return STATEMENT_OK;
 }
 
 
@@ -96,9 +98,10 @@ void    statement_ecisc :: translateInstruction(string::size_type startPos)
  *  May 2010    J Bacon
  ***************************************************************************/
 
-void statement_ecisc :: translateOpcode(void)
+int     statement_ecisc :: translateOpcode(void)
+
 {
-    string opcode_sought = statement::get_textOpcode();
+    string opcode_sought = get_textOpcode();
     opcode key(opcode_sought, 0);
     
     // Binary search opcode table
@@ -108,17 +111,14 @@ void statement_ecisc :: translateOpcode(void)
     
     // Extract opcode
     string opcode_found = ((opcode)(*where)).get_assem();
-    if ( opcode_found == statement::get_textOpcode() )
+    if ( opcode_found == get_textOpcode() )
     {
 	binaryOpcode = ((opcode)(*where)).get_bin();
-	statement::add_to_machineCodeSize(1);   // 1 byte opcode
-	statement::add_to_machineCodeCols(3);   // opcode + ' '
+	add_to_machineCodeSize(1);   // 1 byte opcode
+	add_to_machineCodeCols(3);   // opcode + ' '
     }
     else
-    {
-	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
-    }
-    // cerr << "opcode_found = " << opcode_found << '\n';
+	add_parseStatus(STATEMENT_INVALID_OPCODE);
     
     // Set data size for this instruction
     switch(binaryOpcode)
@@ -188,6 +188,8 @@ void statement_ecisc :: translateOpcode(void)
 	    dataSize = 4;
 	    break;
     }
+    
+    return STATEMENT_OK;
 }
 
 
@@ -260,7 +262,7 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	if (Debug) cerr << "Reg direct\n";
 	sscanf(operand.c_str(), "r%d", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_REG_DIRECT | reg_num;
-	statement::add_to_machineCodeSize(1);
+	add_to_machineCodeSize(1);
 	statement::add_to_machineCodeCols(3);
     }
     
@@ -270,8 +272,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	if (Debug) cerr << "Reg indirect\n";
 	sscanf(operand.c_str(), "(r%d)", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_REG_INDIRECT | reg_num;
-	statement::add_to_machineCodeSize(1);
-	statement::add_to_machineCodeCols(3);
+	add_to_machineCodeSize(1);
+	add_to_machineCodeCols(3);
     }
     
     // Autoincrement
@@ -280,8 +282,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	if (Debug) cerr << "Autoincrement\n";
 	sscanf(operand.c_str(), "(r%d)+", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | reg_num;
-	statement::add_to_machineCodeSize(1);
-	statement::add_to_machineCodeCols(3);
+	add_to_machineCodeSize(1);
+	add_to_machineCodeCols(3);
     }
     
     // Autodecrement
@@ -290,8 +292,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	if (Debug) cerr << "Autodecrement\n";
 	sscanf(operand.c_str(), "-(r%d)", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_AUTO_DECREMENT | reg_num;
-	statement::add_to_machineCodeSize(1);
-	statement::add_to_machineCodeCols(3);
+	add_to_machineCodeSize(1);
+	add_to_machineCodeCols(3);
     }
     
     // Label_offset
@@ -304,8 +306,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	sscanf(operand.c_str(), "%i", &(operandValue[operandCount]));
 	sscanf(operand.substr(end_offset).c_str(), "(r%d)", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_OFFSET | reg_num;
-	statement::add_to_machineCodeSize(1 + 4);
-	statement::add_to_machineCodeCols(3 + 9);
+	add_to_machineCodeSize(1 + 4);
+	add_to_machineCodeCols(3 + 9);
     }
     
     // Numeric offset
@@ -317,8 +319,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	label[operandCount] = operand.substr(0, end_label);
 	sscanf(operand.substr(end_label).c_str(), "(r%d)", &reg_num);
 	modeByte[operandCount] = ECISC_MODE_OFFSET | reg_num;
-	statement::add_to_machineCodeSize(1 + 4);
-	statement::add_to_machineCodeCols(3 + 10);
+	add_to_machineCodeSize(1 + 4);
+	add_to_machineCodeCols(3 + 10);
 	//cout << "Offset: " << label[operandCount] << ' ' << reg_num << '\n';
     }
     
@@ -327,8 +329,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Mem direct\n";
 	modeByte[operandCount] = ECISC_MODE_MEM_DIRECT;
-	statement::add_to_machineCodeSize(1 + 4);
-	statement::add_to_machineCodeCols(3 + 10);
+	add_to_machineCodeSize(1 + 4);
+	add_to_machineCodeCols(3 + 10);
 	label[operandCount] = operand;
     }
     
@@ -337,8 +339,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Mem indirect\n";
 	modeByte[operandCount] = ECISC_MODE_MEM_INDIRECT;
-	statement::add_to_machineCodeSize(1 + 4);
-	statement::add_to_machineCodeCols(3 + 10);
+	add_to_machineCodeSize(1 + 4);
+	add_to_machineCodeCols(3 + 10);
 	label[operandCount] = operand.substr(1,operand.size()-2);
     }
     
@@ -347,8 +349,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Address of\n";
 	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | 15;
-	statement::add_to_machineCodeSize(1 + 4);
-	statement::add_to_machineCodeCols(3 + 10);
+	add_to_machineCodeSize(1 + 4);
+	add_to_machineCodeCols(3 + 10);
 	label[operandCount] = operand.substr(1,operand.size()-1);
     }
     
@@ -357,8 +359,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Immediate int\n";
 	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | 15;
-	statement::add_to_machineCodeSize(1 + get_dataSize());
-	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
+	add_to_machineCodeSize(1 + get_dataSize());
+	add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
 	sscanf(operand.c_str(), "%i", &operandValue[operandCount]);
     }
     
@@ -367,8 +369,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Immediate float\n";
 	modeByte[operandCount] = ECISC_MODE_AUTO_INCREMENT | 15;
-	statement::add_to_machineCodeSize(1 + get_dataSize());
-	statement::add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
+	add_to_machineCodeSize(1 + get_dataSize());
+	add_to_machineCodeCols(3 + get_dataSize() * 2 + 1);
 	sscanf(operand.c_str(), "%f", (float *)&operandValue[operandCount]);
     }
     
@@ -377,14 +379,14 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
     {
 	if (Debug) cerr << "Immediate address\n";
 	modeByte[operandCount] = ECISC_MODE_MEM_DIRECT;
-	statement::add_to_machineCodeSize(1 + 4);
-	statement::add_to_machineCodeCols(3 + 9);
+	add_to_machineCodeSize(1 + 4);
+	add_to_machineCodeCols(3 + 9);
 	sscanf(operand.c_str(), "(%i)", &operandValue[operandCount]);
 	label[operandCount] = "";
     }
     
     else
-	statement::add_parseStatus(STATEMENT_INVALID_OPERAND);
+	add_parseStatus(STATEMENT_INVALID_OPERAND);
 
     regfree(&preg_reg_direct);
     regfree(&preg_reg_indirect);
@@ -436,13 +438,11 @@ void statement_ecisc :: outputMl(ostream &outfile)
 	(unsigned int)binaryOpcode << ' ';
     
     // Pseudo-instructions
-    if ( (binaryOpcode == ECISC_OP_MOVL) && (statement::get_textOpcode() == "ret") )
+    if ( (binaryOpcode == ECISC_OP_MOVL) && (get_textOpcode() == "ret") )
     {
 	// Make sure no arguments given
-	if ( statement::get_operandCount() != 0 )
-	{
+	if ( get_operandCount() != 0 )
 	    add_parseStatus(STATEMENT_OPERAND_COUNT);
-	}
 	
 	// Output machine code for "(sp)+, pc"
 	outfile << "2e 0f ";
@@ -450,7 +450,7 @@ void statement_ecisc :: outputMl(ostream &outfile)
 	add_to_machineCodeSize(2);
     }
     
-    for (unsigned int c = 0; c < statement::get_operandCount(); ++c)
+    for (unsigned int c = 0; c < get_operandCount(); ++c)
     {
 	// Output mode byte
 	outfile << setw(2) << (unsigned int)modeByte[c] << ' ';
@@ -493,13 +493,11 @@ void statement_ecisc :: outputMl(ostream &outfile)
 #if 0   // Old method before switching jumps to PC <- EA instead of PC <- OP
     if ( binaryOpcode == ECISC_OP_MOVL )
     {
-	if ( statement::get_textOpcode() == "j" )
+	if ( get_textOpcode() == "j" )
 	{
 	    // Make sure only one argument given
-	    if ( statement::get_operandCount() != 1 )
-	    {
+	    if ( get_operandCount() != 1 )
 		add_parseStatus(STATEMENT_OPERAND_COUNT);
-	    }
 	    
 	    // Output machine code for "pc"
 	    outfile << "0f ";

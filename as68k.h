@@ -8,8 +8,8 @@
 class statement68k : public statement
 {
     public:
-	void    translateInstruction(string::size_type endLabel);
-	void    translateOpcode(void);
+	int     translateInstruction(string::size_type endLabel);
+	int     translateOpcode(void);
 	int     translateOperand(string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);
 	void    outputMl(ostream &outfile);
