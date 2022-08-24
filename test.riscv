@@ -22,5 +22,11 @@ main:   addi    x1, x1, -1
 	and     x1, x1, x2
 	ld      x4, a
 	ld      x4, -1(x1)
-	ld      x4, 0(x31)
+	lw      x4, 0(x31)
+	lh      x4, 0(x31)
+	lb      x4, 0(x31)
 	sd      x4, -1(x1)
+	sw      x4, -1(x1)
+	sh      x4, -1(x1)
+	sb      x4, -1(x1)
+	

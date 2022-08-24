@@ -416,8 +416,8 @@ void statement_riscv :: translateOpcode(void)
     if ( opcode_found == statement::get_textOpcode() )
     {
 	binary_opcode = ((opcode)(*where)).get_bin();
-	statement::add_to_machineCodeSize(1);   // 1 byte opcode
-	statement::add_to_machineCodeCols(3);   // opcode + ' '
+	// All RISC V instructions are 32 bits
+	statement::add_to_machineCodeSize(4);
     }
     else
 	statement::add_parseStatus(STATEMENT_INVALID_OPCODE);
