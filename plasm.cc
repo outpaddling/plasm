@@ -88,21 +88,19 @@ int     assem(const char *prog_name, const char *filename,
     {
 	if ( strcmp(filename_extension, ".ecisc") == 0 )
 	    stmnt = new statement_ecisc;
-	else if ( strcmp(filename_extension, ".68k") == 0 )
-	    stmnt = new statement68k;
 	else if ( strcmp(filename_extension, ".riscv") == 0 )
 	    stmnt = new statement_riscv;
 	else
 	{
 	    cerr << "Error: Unknown language: " << filename_extension << '\n';
-	    cerr << "Supported extensions are \".ecisc\" and \".68k\".\n";
+	    cerr << "Supported extensions are \".ecisc\" and \".riscv\".\n";
 	    exit(EX_USAGE);
 	}
     }
     else
     {
 	cerr << "Error: filename must have an extension to indicate language.\n";
-	cerr << "Supported extensions are \".ecisc\" and \".68k\".\n";
+	cerr << "Supported extensions are \".ecisc\" and \".riscv\".\n";
 	exit(EX_USAGE);
     }
 

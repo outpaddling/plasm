@@ -53,7 +53,7 @@ MAN     = plasm
 ############################################################################
 # List object files that comprise BIN.
 
-OBJS    = plasm.o statement.o symtable.o as68k.o riscv.o ecisc.o \
+OBJS    = plasm.o statement.o symtable.o riscv.o ecisc.o \
 	  opcode.o transunit.o ecisc-table-init.o riscv-table-init.o
 
 ############################################################################

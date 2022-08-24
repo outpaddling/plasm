@@ -106,7 +106,6 @@ class statement
 
 // Derived classes for specific architectures
 #include "opcode.h"
-#include "as68k.h"
 #include "ecisc.h"
 #include "riscv.h"
 
