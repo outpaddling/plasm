@@ -63,6 +63,7 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
     
     switch(machineInstruction)
     {
+	// R-type
 	case    RISCV_OP_ADD:
 	case    RISCV_OP_SUB:
 	case    RISCV_OP_XOR:
@@ -75,14 +76,46 @@ void    statement_riscv :: translateInstruction(string::size_type startPos)
 	case    RISCV_OP_SLTU:
 	    translateRtype(startPos);
 	    break;
+	
+	// I-type
 	case    RISCV_OP_ADDI:
+	case    RISCV_OP_SLLI:
+	case    RISCV_OP_SLTI:
+	case    RISCV_OP_SLTIU:
+	case    RISCV_OP_XORI:
+	case    RISCV_OP_SRLI:
+	case    RISCV_OP_SRAI:
+	case    RISCV_OP_ORI:
+	case    RISCV_OP_ANDI:
+	case    RISCV_OP_JALR:
 	    translateItype(startPos);
 	    break;
+	
+	case    RISCV_OP_LB:
+	case    RISCV_OP_LH:
+	case    RISCV_OP_LW:
+	case    RISCV_OP_LBU:
+	case    RISCV_OP_LHU:
+	case    RISCV_OP_LWU:
 	case    RISCV_OP_LD:
 	    translateLoad(startPos);
 	    break;
+	
+	// S-type
+	case    RISCV_OP_SB:
+	case    RISCV_OP_SH:
+	case    RISCV_OP_SW:
 	case    RISCV_OP_SD:
 	    translateStype(startPos);
+	    break;
+	
+	// SB-type
+	case    RISCV_OP_BEQ:
+	case    RISCV_OP_BNE:
+	case    RISCV_OP_BLT:
+	case    RISCV_OP_BGE:
+	case    RISCV_OP_BLTU:
+	case    RISCV_OP_BGEU:
 	    break;
 	default:
 	    cerr << "translateInstruction: Invalid opcode "
