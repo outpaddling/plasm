@@ -174,6 +174,12 @@ int     assem(const char *prog_name, const char *filename,
     
     /*
      *  Pass2: Resolve symbol references
+     *  ECISC: Label marked by '\002' for each operand.
+     *      FIXME: Use @ instead of '\002'?
+     *
+     *  FIXME: Add RISC-V support.
+     *      All instruction codes exactly 32 bits
+     *      @Label precedes hex instruction code
      */
     
     if ( assemStatus == EX_OK )

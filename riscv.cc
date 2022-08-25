@@ -23,6 +23,7 @@ statement_riscv :: statement_riscv(void)
     initTable();
     
     machineCodeFieldWidth = 16;
+    labelOperand = "";
 
     // Sort with STL sort function, so we can use binary_search()
     // on the mnemonic later when translating.
@@ -49,6 +50,7 @@ int     statement_riscv :: translateInstruction(TranslationUnit *transUnit,
     
     isAnInstruction = true;
     parseStatus = STATEMENT_OK;
+    labelOperand = "";              // Set when mem_direct operand found
 
     // Translate opcode.  Needed to determine number and type of operands.
     translateOpcode(transUnit);
@@ -555,7 +557,8 @@ int     statement_riscv :: translateOperand(TranslationUnit *transUnit, string &
     else if ( regexec(&preg_mem_direct, operand.c_str(), 1, matches, 0) == 0 )
     {
 	addressing_mode = RISCV_MODE_LABEL;
-	if ( Debug ) cerr << "Mem direct\n";
+	labelOperand = operand;
+	if ( Debug ) cerr << "Mem direct: " << operand << '\n';
     }
     
     // Immediate
@@ -622,5 +625,7 @@ bool statement_riscv :: isComment(string::size_type start_pos)
 void statement_riscv :: outputMl(TranslationUnit *transUnit, ostream &outfile)
 
 {
+    if ( labelOperand != "" )
+	outfile << "@" << labelOperand << " ";
     outfile << hex << setw(8) << setfill('0') << machineInstruction;
 }

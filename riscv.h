@@ -26,6 +26,7 @@ class statement_riscv : public statement
     private:
 	uint32_t        machineInstruction;
 	vector<opcode>  opcodeTable;
+	string          labelOperand;
 };
 
 #endif
