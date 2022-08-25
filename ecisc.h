@@ -14,10 +14,10 @@ class statement_ecisc : public statement
     public:
 	statement_ecisc(void);
 	int     translateInstruction(TranslationUnit *transUnit, string::size_type endLabel);
-	int     translateOpcode(void);
-	int     translateOperand(string &operand, uint64_t *bits);
+	int     translateOpcode(TranslationUnit *transUnit);
+	int     translateOperand(TranslationUnit *transUnit, string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);
-	void    outputMl(ostream &outfile);
+	void    outputMl(TranslationUnit *transUnit, ostream &outfile);
 	inline int  get_dataSize(void) { return dataSize; }
 	void    initTable(void);
     private:

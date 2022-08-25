@@ -15,13 +15,13 @@ class statement_riscv : public statement
 	statement_riscv(void);
 	int     translateInstruction(TranslationUnit *transUnit, string::size_type endLabel);
 	int     translateRtype(TranslationUnit *transUnit, string::size_type endLabel);
-	int     translateItype(string::size_type endLabel);
-	int     translateLoad(string::size_type endLabel);
-	int     translateStype(string::size_type endLabel);
-	int     translateOpcode(void);
-	int     translateOperand(string &operand, uint64_t *bits);
+	int     translateItype(TranslationUnit *transUnit, string::size_type endLabel);
+	int     translateLoad(TranslationUnit *transUnit, string::size_type endLabel);
+	int     translateStype(TranslationUnit *transUnit, string::size_type endLabel);
+	int     translateOpcode(TranslationUnit *transUnit);
+	int     translateOperand(TranslationUnit *transUnit, string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);
-	void    outputMl(ostream &outfile);
+	void    outputMl(TranslationUnit *transUnit, ostream &outfile);
 	void    initTable(void);
     private:
 	uint32_t        machineInstruction;

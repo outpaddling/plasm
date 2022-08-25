@@ -50,8 +50,8 @@ int     statement_ecisc :: translateInstruction(TranslationUnit *transUnit,
     isAnInstruction = true;
     parseStatus = STATEMENT_OK;
 
-    // Translate opcode.  Needed to determine number and type of arguments.
-    translateOpcode();
+    // Translate opcode.  Needed to determine number and type of operands.
+    translateOpcode(transUnit);
     
     /*
      *  This operand parsing is architecture-independent.  This isn't
@@ -73,14 +73,14 @@ int     statement_ecisc :: translateInstruction(TranslationUnit *transUnit,
 	text_operand = sourceCode.substr(start_operand, end_operand-start_operand);
     
 	// Validate operand using derived class?
-	translateOperand(text_operand, &bits);
+	translateOperand(transUnit, text_operand, &bits);
 	
 	// Next operand
 	++operandCount;
 	start_operand = sourceCode.find_first_not_of(" \t,", end_operand);
     }
     
-    outputMl(mc_stream);
+    outputMl(transUnit, mc_stream);
     machineCode = mc_stream.str();
     
     return STATEMENT_OK;
@@ -99,7 +99,7 @@ int     statement_ecisc :: translateInstruction(TranslationUnit *transUnit,
  *  May 2010    J Bacon
  ***************************************************************************/
 
-int     statement_ecisc :: translateOpcode(void)
+int     statement_ecisc :: translateOpcode(TranslationUnit *transUnit)
 
 {
     string opcode_sought = get_textOpcode();
@@ -119,7 +119,7 @@ int     statement_ecisc :: translateOpcode(void)
 	add_to_machineCodeCols(3);   // opcode + ' '
     }
     else
-	add_parseStatus(STATEMENT_INVALID_OPCODE);
+	transUnit->errorMessage("Invalid opcode", sourceCode);
     
     // Set data size for this instruction
     switch(binaryOpcode)
@@ -206,7 +206,8 @@ int     statement_ecisc :: translateOpcode(void)
  *  May 2010    J Bacon
  ***************************************************************************/
 
-int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
+int     statement_ecisc :: translateOperand(TranslationUnit *transUnit,
+					    string &operand, uint64_t *bits)
 
 {
     static char const *pattern_reg_direct = "^[Rr][0-9][0-5]?$",
@@ -385,9 +386,8 @@ int     statement_ecisc :: translateOperand(string &operand, uint64_t *bits)
 	sscanf(operand.c_str(), "(%i)", &operandValue[operandCount]);
 	label[operandCount] = "";
     }
-    
     else
-	add_parseStatus(STATEMENT_INVALID_OPERAND);
+	transUnit->errorMessage("Invalid operand", sourceCode);
 
     regfree(&preg_reg_direct);
     regfree(&preg_reg_indirect);
@@ -432,7 +432,7 @@ bool statement_ecisc :: isComment(string::size_type start_pos)
 }
 
 
-void statement_ecisc :: outputMl(ostream &outfile)
+void statement_ecisc :: outputMl(TranslationUnit *transUnit, ostream &outfile)
 
 {
     outfile << hex << setw(2) << setfill('0') <<
@@ -441,9 +441,9 @@ void statement_ecisc :: outputMl(ostream &outfile)
     // Pseudo-instructions
     if ( (binaryOpcode == ECISC_OP_MOVL) && (get_textOpcode() == "ret") )
     {
-	// Make sure no arguments given
+	// Make sure no operands given
 	if ( get_operandCount() != 0 )
-	    add_parseStatus(STATEMENT_OPERAND_COUNT);
+	    transUnit->errorMessage("No operands expected", sourceCode);
 	
 	// Output machine code for "(sp)+, pc"
 	outfile << "2e 0f ";
@@ -496,9 +496,9 @@ void statement_ecisc :: outputMl(ostream &outfile)
     {
 	if ( get_textOpcode() == "j" )
 	{
-	    // Make sure only one argument given
+	    // Make sure only one operand given
 	    if ( get_operandCount() != 1 )
-		add_parseStatus(STATEMENT_OPERAND_COUNT);
+		transUnit->errorMessage("One operand expected", sourceCode);
 	    
 	    // Output machine code for "pc"
 	    outfile << "0f ";

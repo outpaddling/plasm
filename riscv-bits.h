@@ -83,3 +83,4 @@
 #define RISCV_MODE_REG_DIRECT   1
 #define RISCV_MODE_IMMEDIATE    2
 #define RISCV_MODE_OFFSET       3
+#define RISCV_MODE_LABEL        4

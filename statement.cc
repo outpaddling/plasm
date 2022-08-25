@@ -92,9 +92,9 @@ void    statement :: processDirective(TranslationUnit *transUnit,
     else if ( textOpcode == ".double" )
 	currentDataType = TYPE_DOUBLE;
     else
-	add_parseStatus(STATEMENT_INVALID_DIRECTIVE);
+	transUnit->errorMessage("Invalid directive", sourceCode);
     
-    processInitializers(startPos);
+    processInitializers(transUnit, startPos);
 }
 
 
@@ -110,7 +110,8 @@ void    statement :: processDirective(TranslationUnit *transUnit,
  *
  ***************************************************************************/
 
-void    statement :: processInitializers(string::size_type startPos)
+void    statement :: processInitializers(TranslationUnit *transUnit,
+					 string::size_type startPos)
 
 {
     stringstream        mc_stream;
@@ -270,42 +271,7 @@ void    statement :: processInitializers(string::size_type startPos)
     machineCode = mc_stream.str();
     
     if ( initializers == 0 )
-	add_parseStatus(STATEMENT_MISSING_INITIALIZER);
-}
-
-
-void    statement :: printErrors(const char *filename,
-				unsigned long line)
-
-{
-    cerr << dec << filename << ", line " << line << ": ";
-    cerr << "parseStatus = " << parseStatus << ": ";
-    
-    if ( parseStatus & STATEMENT_MISSING_COLON )
-	cerr << "Label detected (text in column 1), but no colon found.\n";
-    
-    if ( parseStatus & STATEMENT_BAD_LABEL )
-	cerr << "Label contains illegal characters.  Only letters, digits, and '_' allowed.\n";
-
-    if ( parseStatus & STATEMENT_INVALID_OPCODE )
-	cerr << "Invalid opcode.\n";
-
-    if ( parseStatus & STATEMENT_INVALID_OPERAND )
-	cerr << "Invalid operand.\n";
-
-    if ( parseStatus & STATEMENT_MISSING_INITIALIZER )
-	cerr << "Missing initializer.\n";
-
-    if ( parseStatus & STATEMENT_OPERAND_COUNT )
-	cerr << "Wrong number of arguments for instruction.\n";
-
-    if ( parseStatus & STATEMENT_INVALID_DIRECTIVE )
-	cerr << "Invalid directive.\n";
-
-    if ( parseStatus & STATEMENT_EXPECTED_REGISTER )
-	cerr << "Expected a register.\n";
-
-    cerr << sourceCode << '\n';
+	transUnit->errorMessage("Missing initializer", sourceCode);
 }
 
 
@@ -329,7 +295,7 @@ bool    statement :: badLabel(void)
 }
 
 
-istream    &statement :: read(istream &infile)
+istream    &statement :: read(TranslationUnit *transUnit, istream &infile)
 
 {
     sourceLines = 0;
@@ -350,10 +316,10 @@ istream    &statement :: read(istream &infile)
 	    
 	    // Validate label structure
 	    if ( badLabel() )
-		add_parseStatus(STATEMENT_BAD_LABEL);
+		transUnit->errorMessage("Bad label", sourceCode);
 	}
 	else
-	    add_parseStatus(STATEMENT_MISSING_COLON);
+	    transUnit->errorMessage("Missing colon", sourceCode);
 	
 	// Skip forward to next line with an opcode
 	++endLabel;

@@ -11,17 +11,17 @@ using namespace std;
 
 #define MAX_OPERANDS                3
 
-#define STATEMENT_OK                    0x00000000
-#define STATEMENT_COMMENT               0x00000001
-#define STATEMENT_MISSING_COLON         0x00000002
-#define STATEMENT_BAD_LABEL             0x00000004
-#define STATEMENT_INVALID_OPCODE        0x00000008
-#define STATEMENT_INVALID_OPERAND       0x00000010
-#define STATEMENT_MISSING_INITIALIZER   0x00000020
-#define STATEMENT_OPERAND_COUNT         0x00000040
-#define STATEMENT_INVALID_DIRECTIVE     0x00000080
-#define STATEMENT_EXPECTED_REGISTER     0x00000100
-#define STATEMENT_EXPECTED_OFFSET       0x00000200
+#define STATEMENT_OK                    0
+#define STATEMENT_COMMENT               1
+#define STATEMENT_MISSING_COLON         2
+#define STATEMENT_BAD_LABEL             3
+#define STATEMENT_INVALID_OPCODE        4
+#define STATEMENT_INVALID_OPERAND       5
+#define STATEMENT_MISSING_INITIALIZER   6
+#define STATEMENT_OPERAND_COUNT         7
+#define STATEMENT_INVALID_DIRECTIVE     8
+#define STATEMENT_EXPECTED_REGISTER     9
+#define STATEMENT_EXPECTED_OFFSET       10
 
 #define TYPE_BYTE   1
 #define TYPE_SHORT  2
@@ -36,22 +36,19 @@ typedef unsigned long   statement_status_t;
 class statement
 {
     public:
-	istream         &read(istream &infile);
+	istream         &read(TranslationUnit *transUnit, istream &infile);
 	void            parse(TranslationUnit *transUnit);
 	void            processDirective(TranslationUnit *transUnit, string::size_type endLabel);
-	void            processInitializers(string::size_type endLabel);
-	void            printErrors(const char *filename,
-				    unsigned long line);
-
+	void            processInitializers(TranslationUnit *transUnit, string::size_type endLabel);
 	bool            hasLabel(void);
 	bool            badLabel(void);
 
 	// Architecture-dependent: Must be implemented by derived class
 	virtual int     translateInstruction(TranslationUnit *transUnit, string::size_type endLabel) = 0;
-	virtual int     translateOpcode(void) = 0;
-	virtual int     translateOperand(string &operand, uint64_t *bits) = 0;
+	virtual int     translateOpcode(TranslationUnit *transUnit) = 0;
+	virtual int     translateOperand(TranslationUnit *transUnit, string &operand, uint64_t *bits) = 0;
 	virtual bool    isComment(string::size_type start_post) = 0;
-	virtual void    outputMl(ostream &outfile) = 0;
+	virtual void    outputMl(TranslationUnit *transUnit, ostream &outfile) = 0;
 	//virtual void    initTable(void) = 0;
 	
 	// Mutators, accessors, etc.
@@ -62,8 +59,6 @@ class statement
 	void     add_to_machineCodeSize(unsigned int bytes)
 			    { machineCodeSize += bytes; }
 	mc_offset_t get_machineCodeSize(void) { return machineCodeSize; }
-	void     add_parseStatus(statement_status_t status)
-			    { parseStatus |= status; }
 	int      get_machineCodeCols(void) { return machineCodeCols; }
 	void     add_to_machineCodeCols(unsigned int cols)
 			    { machineCodeCols += cols; }

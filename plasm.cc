@@ -108,7 +108,7 @@ int     assem(const char *prog_name, const char *filename,
      *  Pass1: Build symbol table, translate
      */
     
-    while ( stmnt->read(*infile) )
+    while ( stmnt->read(&transUnit, *infile) )
     {
 	//string::size_type endLabel = 0;
 	
@@ -127,10 +127,7 @@ int     assem(const char *prog_name, const char *filename,
 	stmnt->parse(&transUnit);
 	
 	if ( stmnt->get_parseStatus() != STATEMENT_OK )
-	{
-	    stmnt->printErrors(filename, transUnit.get_sourceLine());
 	    assemStatus = EX_DATAERR;
-	}
 
 	// Output machine language
 	if ( stmnt->isInstruction() )
