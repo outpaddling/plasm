@@ -25,20 +25,27 @@ TranslationUnit :: TranslationUnit()
     sourceLine = 0;
     codeOffset = 0;
     dataOffset = 0;
-    
-    codeFileName = strdup("/tmp/codefileXXXXXX");
-    mkstemp(codeFileName);
-    codeTempFile.open(codeFileName);
-    if ( codeTempFile.fail() )
+}
+
+
+void    TranslationUnit :: openFiles(const char *sourceName)
+
+{
+    strlcpy(codeFileName, sourceName, PATH_MAX);
+    strlcat(codeFileName, ".pass1-code", PATH_MAX);
+    codePass1File.open(codeFileName,
+	std::fstream::in | std::fstream::out | std::fstream::trunc);
+    if ( codePass1File.fail() )
     {
 	cerr << "Could not open " << codeFileName << ".\n";
 	exit(EX_CANTCREAT);
     }
 
-    dataFileName = strdup("/tmp/datafileXXXXXX");
-    mkstemp(dataFileName);
-    dataTempFile.open(dataFileName);
-    if ( codeTempFile.fail() )
+    strlcpy(dataFileName, sourceName, PATH_MAX);
+    strlcat(dataFileName, ".pass1-code", PATH_MAX);
+    dataPass1File.open(dataFileName,
+	std::fstream::in | std::fstream::out | std::fstream::trunc);
+    if ( codePass1File.fail() )
     {
 	cerr << "Could not open " << codeFileName << ".\n";
 	exit(EX_CANTCREAT);
@@ -49,24 +56,24 @@ TranslationUnit :: TranslationUnit()
 TranslationUnit :: ~TranslationUnit(void)
 
 {
-    codeTempFile.close();
-    dataTempFile.close();
-    unlink(codeFileName);
-    unlink(dataFileName);
+    codePass1File.close();
+    dataPass1File.close();
+    //unlink(codeFileName);
+    //unlink(dataFileName);
 }
 
 
 void    TranslationUnit :: output_codeOffset(void)
 
 {
-    codeTempFile << hex << setw(OFFSET_WIDTH) << setfill('0') << codeOffset << ' ';
+    codePass1File << hex << setw(OFFSET_WIDTH) << setfill('0') << codeOffset << ' ';
 }
 
 
 void    TranslationUnit :: output_dataOffset(void)
 
 {
-    dataTempFile << hex << setw(OFFSET_WIDTH) << setfill('0') << dataOffset << ' ';
+    dataPass1File << hex << setw(OFFSET_WIDTH) << setfill('0') << dataOffset << ' ';
 }
 
 

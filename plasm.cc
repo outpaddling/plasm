@@ -108,6 +108,8 @@ int     assem(const char *prog_name, const char *filename,
 	exit(EX_USAGE);
     }
 
+    transUnit.openFiles(filename);
+    
     /*
      *  Pass1: Build symbol table, translate
      */
@@ -137,7 +139,7 @@ int     assem(const char *prog_name, const char *filename,
 	
 	    // Output code offset and machine code
 	    transUnit.output_codeOffset();
-	    transUnit.get_codeTempFile() << stmnt->get_machineCode();
+	    transUnit.get_codePass1File() << stmnt->get_machineCode();
 	    
 	    transUnit.add_to_codeOffset(stmnt->get_machineCodeSize());
 
@@ -146,10 +148,10 @@ int     assem(const char *prog_name, const char *filename,
 	    for (int c = 0;
 		c < stmnt->get_machineCodeFieldWidth() 
 		    - stmnt->get_machineCodeCols(); ++c)
-		transUnit.get_codeTempFile() << ' ';
+		transUnit.get_codePass1File() << ' ';
 	    
 	    // Output source code
-	    transUnit.get_codeTempFile() << "# " << stmnt->get_sourceCode() << endl;
+	    transUnit.get_codePass1File() << "# " << stmnt->get_sourceCode() << endl;
 	}
 	else
 	{
@@ -158,17 +160,17 @@ int     assem(const char *prog_name, const char *filename,
 				    &stmnt->get_label());
 	    
 	    transUnit.output_dataOffset();
-	    transUnit.get_dataTempFile() << stmnt->get_machineCode();
+	    transUnit.get_dataPass1File() << stmnt->get_machineCode();
 	    
 	    transUnit.add_to_dataOffset(stmnt->get_machineCodeSize());
 
 	    // Align source code
 	    for (int c = 0;
 		c < stmnt->get_machineCodeFieldWidth() - stmnt->get_machineCodeCols(); ++c)
-		transUnit.get_dataTempFile() << ' ';
+		transUnit.get_dataPass1File() << ' ';
 	    
 	    // Source code
-	    transUnit.get_dataTempFile() << "# " << stmnt->get_sourceCode() << endl;
+	    transUnit.get_dataPass1File() << "# " << stmnt->get_sourceCode() << endl;
 	}
     }
     
@@ -178,7 +180,7 @@ int     assem(const char *prog_name, const char *filename,
     /*
      *  Pass2: Resolve symbol references
      *  ECISC: Label marked by '\002' for each operand.
-     *      FIXME: Use @ instead of '\002'?
+     *      Need a char that cannot otherwise appear in the pass1 output
      *
      *  FIXME: Add RISC-V support.
      *      All instruction codes exactly 32 bits
@@ -192,19 +194,19 @@ int     assem(const char *prog_name, const char *filename,
 	string  label;
 	Symbol  *match;
 	
-	transUnit.get_codeTempFile().seekg(0, ios::beg);
-	transUnit.get_dataTempFile().seekg(0, ios::beg);
+	transUnit.get_codePass1File().seekg(0, ios::beg);
+	transUnit.get_dataPass1File().seekg(0, ios::beg);
 	
 	// Labels are embedded differently in ECISC and RISC-V
 	if ( strcmp(filename_extension, ".ecisc") == 0 )
 	{
-	    while ( transUnit.get_codeTempFile().get(ch) )
+	    while ( transUnit.get_codePass1File().get(ch) )
 	    {
 		if ( ch != '\002' )
 		    (*outfile).put(ch);
 		else
 		{
-		    transUnit.get_codeTempFile() >> label;
+		    transUnit.get_codePass1File() >> label;
 		    match = codeSymTable.lookupByName(&label);
 		    if ( match != NULL )
 			(*outfile) << '@' << hex << setw(8) << setfill('0') <<
@@ -223,38 +225,102 @@ int     assem(const char *prog_name, const char *filename,
 	}
 	else if ( strcmp(filename_extension, ".riscv") == 0 )
 	{
-	    while ( transUnit.get_codeTempFile() >> offset )
+	    while ( transUnit.get_codePass1File() >> offset )
 	    {
 		(*outfile) << hex << setw(OFFSET_WIDTH) << setfill('0')
 		    << offset;
 	    
 		// FIXME: Now check for label and convert to an offset
 		// in the machine code
-		while ( transUnit.get_codeTempFile().get(ch) && (isspace(ch)) )
+		while ( transUnit.get_codePass1File().get(ch) && (isspace(ch)) )
 		    (*outfile).put(ch);
 		if ( ch == '@' )
 		{
+		    mc_offset_t data_offset = 0, code_offset = 0;
+		    uint32_t    machine_code, opcode;
+		    
 		    cerr << "Label found\n";
-		    transUnit.get_codeTempFile() >> label;
+		    transUnit.get_codePass1File() >> label;
 		    match = codeSymTable.lookupByName(&label);
 		    if ( match != NULL )
-			(*outfile) << '@' << hex << setw(8) << setfill('0') <<
-			    match->get_offset();
+		    {
+			code_offset = match->get_offset();
+			cerr << "Code offset = " << code_offset << '\n';
+			if ( data_offset > 4096 )
+			    cerr << "Error: Data segment > 4096 bytes.\n";
+		    }
 		    else
 		    {
+			// Offset of symbol in data segment
 			match = dataSymTable.lookupByName(&label);
 			if ( match != NULL )
-			    (*outfile) << '@' << hex << setw(8) << setfill('0') <<
-				match->get_offset() + transUnit.get_codeOffset();
+			{
+			    data_offset = match->get_offset();
+			    cerr << "Data offset = " 
+				 << hex << setw(8) << setfill('0')
+				 << code_offset << '\n';
+			}
 			else
 			    cerr << "\nError: label \"" << label << "\" undefined.\n";
+		    }
+
+		    // Note: Data segment is first in source, but second
+		    // in machine code
+		    transUnit.get_codePass1File() >> machine_code;
+		    opcode = machine_code & 0x7f;
+		    switch(opcode)
+		    {
+			case    RISCV_OP_BEQ & 0x7f:    // Any branch
+			    // Debug
+			    (*outfile) << '@'
+				    << hex << setw(8) << setfill('0')
+				    << match->get_offset();
+			    break;
+			
+			// Load instructions: GP-relateive (x3)
+			case    RISCV_OP_LB & 0x7f:
+			    machine_code |= data_offset << 20;
+			    machine_code |= 3 << 15;            // gp
+			    cerr << "Instruction with machine_code: "
+				 << machine_code << '\n';
+			    (*outfile) << hex << setw(8) << setfill('0')
+				<< machine_code;
+			    binary_output(machine_code);
+			    cerr << '\n';
+			    break;
+			
+			case    RISCV_OP_JALR & 0x7f:   // PC-relative
+			    // Debug
+			    (*outfile) << '@'
+				    << hex << setw(8) << setfill('0')
+				    << match->get_offset();
+			    break;
+			
+			case    RISCV_OP_SB & 0x7f:     // Any store
+			    // Debug
+			    (*outfile) << '@'
+				    << hex << setw(8) << setfill('0')
+				    << match->get_offset();
+			    break;
+			
+			case    RISCV_OP_JAL & 0x7f:
+			    // Debug
+			    (*outfile) << '@'
+				    << hex << setw(8) << setfill('0')
+				    << match->get_offset();
+			    break;
+			
+			default:
+			    cerr << "Unsupported opcode for label: "
+				 << hex << opcode << '\n';
+			    break;
 		    }
 		}
 		else
 		    (*outfile).put(ch);
 		
 		// Copy rest of line
-		while ( transUnit.get_codeTempFile().get(ch) && (ch != '\n') )
+		while ( transUnit.get_codePass1File().get(ch) && (ch != '\n') )
 		    (*outfile).put(ch);
 		(*outfile).put(ch);
 	    }
@@ -262,11 +328,11 @@ int     assem(const char *prog_name, const char *filename,
 	(*outfile) << '\n';
 
 	// Data segment
-	while ( transUnit.get_dataTempFile() >> offset )
+	while ( transUnit.get_dataPass1File() >> offset )
 	{
 	    (*outfile) << hex << setw(OFFSET_WIDTH) << setfill('0')
 		<< transUnit.get_codeOffset() + offset;
-	    while ( transUnit.get_dataTempFile().get(ch) && (ch != '\n') )
+	    while ( transUnit.get_dataPass1File().get(ch) && (ch != '\n') )
 		(*outfile).put(ch);
 	    (*outfile) << '\n';
 	}
