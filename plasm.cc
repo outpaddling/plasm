@@ -107,21 +107,15 @@ int     assem(const char *prog_name, const char *filename,
     /*
      *  Pass1: Build symbol table, translate
      */
-    
+
+    // Read next statement, which may span multiple lines, e.g. if label
+    // and code are not on the same line
     while ( stmnt->read(&transUnit, *infile) )
     {
-	//string::size_type endLabel = 0;
-	
-	//cout << stmnt->get_sourceCode() << endl;
-	
 	transUnit.add_to_sourceLine(stmnt->get_sourceLines());
-	//cerr << "Added " << stmnt->get_sourceLines() << " source lines.\n";
 	
 	if ( stmnt->isComment(0) )
-	{
-	    //cerr << "Comment: " << stmnt->get_sourceCode() << endl;
 	    continue;
-	}
 
 	// Parse line into label, opcode, arguments
 	stmnt->parse(&transUnit);
@@ -134,19 +128,23 @@ int     assem(const char *prog_name, const char *filename,
 	{
 	    // If label present, add to symbol table
 	    if ( stmnt->hasLabel() )
-		codeSymTable.addLabel(transUnit.get_codeOffset(), &stmnt->get_label());
+		codeSymTable.addLabel(transUnit.get_codeOffset(),
+				      &stmnt->get_label());
 	
-	    // Offset for list file
+	    // Output code offset and machine code
 	    transUnit.output_codeOffset();
 	    transUnit.get_codeTempFile() << stmnt->get_machineCode();
+	    
 	    transUnit.add_to_codeOffset(stmnt->get_machineCodeSize());
 
-	    // Align source code
+	    // Pad with spaces to align source code to the right
+	    // ECISC has variable size instructions
 	    for (int c = 0;
-		c < stmnt->get_machineCodeFieldWidth() - stmnt->get_machineCodeCols(); ++c)
+		c < stmnt->get_machineCodeFieldWidth() 
+		    - stmnt->get_machineCodeCols(); ++c)
 		transUnit.get_codeTempFile() << ' ';
 	    
-	    // Source code
+	    // Output source code
 	    transUnit.get_codeTempFile() << "# " << stmnt->get_sourceCode() << endl;
 	}
 	else
@@ -157,6 +155,7 @@ int     assem(const char *prog_name, const char *filename,
 	    
 	    transUnit.output_dataOffset();
 	    transUnit.get_dataTempFile() << stmnt->get_machineCode();
+	    
 	    transUnit.add_to_dataOffset(stmnt->get_machineCodeSize());
 
 	    // Align source code
@@ -219,7 +218,7 @@ int     assem(const char *prog_name, const char *filename,
 	mc_offset_t    offset;
 	while ( transUnit.get_dataTempFile() >> offset )
 	{
-	    (*outfile) << setw(OFFSET_WIDTH) 
+	    (*outfile) << hex << setw(OFFSET_WIDTH) << setfill('0')
 		<< transUnit.get_codeOffset() + offset;
 	    while ( transUnit.get_dataTempFile().get(ch) && (ch != '\n') )
 		(*outfile).put(ch);
