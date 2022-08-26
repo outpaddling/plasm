@@ -17,7 +17,7 @@ int     main(int argc,char *argv[])
 {
     ifstream        infile;
     ofstream        outfile;
-    char            outfile_name[PATH_MAX+1], *p;
+    char            outfile_name[PATH_MAX+1];
     int             c;
     
     for (c = 1; (c < argc) && (*argv[c] == '-'); ++c)
@@ -46,14 +46,17 @@ int     main(int argc,char *argv[])
 	}
 	
 	/* Open target file */
-	strlcpy(outfile_name, argv[c], PATH_MAX);
-	if ( (p = strrchr(outfile_name, '.')) != NULL )
-	    strlcpy(p, ".bin", 5);
-	else
+	if ( (strstr(argv[c], ".ecisc") == NULL) &&
+	     (strstr(argv[c], ".riscv") == NULL) )
 	{
 	    cerr << "Error: Source filename has no extension.\n"
-		<< "Should be '.ecisc'.\n";
+		<< "Should be '.ecisc' or '.riscv'.\n";
 	    exit(EX_USAGE);
+	}
+	else
+	{
+	    strlcpy(outfile_name, argv[c], PATH_MAX);
+	    strlcat(outfile_name, ".bin", PATH_MAX);
 	}
 	outfile.open(outfile_name);
 	if ( outfile.fail() )
@@ -78,6 +81,7 @@ int     assem(const char *prog_name, const char *filename,
     statement       *stmnt;
     const char      *filename_extension;
     int             assemStatus = EX_OK;
+    mc_offset_t     offset;
     
     /*
      *  Statement is a base class for statements of various architectures.
@@ -183,39 +187,81 @@ int     assem(const char *prog_name, const char *filename,
     
     if ( assemStatus == EX_OK )
     {
-	transUnit.get_codeTempFile().seekg(0, ios::beg);
-	transUnit.get_dataTempFile().seekg(0, ios::beg);
-	
 	char    ch;
 	// Replace label with address
 	string  label;
 	Symbol  *match;
-    
-	while ( transUnit.get_codeTempFile().get(ch) )
+	
+	transUnit.get_codeTempFile().seekg(0, ios::beg);
+	transUnit.get_dataTempFile().seekg(0, ios::beg);
+	
+	// Labels are embedded differently in ECISC and RISC-V
+	if ( strcmp(filename_extension, ".ecisc") == 0 )
 	{
-	    if ( ch != '\002' )
-		(*outfile).put(ch);
-	    else
+	    while ( transUnit.get_codeTempFile().get(ch) )
 	    {
-		transUnit.get_codeTempFile() >> label;
-		match = codeSymTable.lookupByName(&label);
-		if ( match != NULL )
-		    (*outfile) << '@' << hex << setw(8) << setfill('0') <<
-			match->get_offset();
+		if ( ch != '\002' )
+		    (*outfile).put(ch);
 		else
 		{
-		    match = dataSymTable.lookupByName(&label);
+		    transUnit.get_codeTempFile() >> label;
+		    match = codeSymTable.lookupByName(&label);
 		    if ( match != NULL )
 			(*outfile) << '@' << hex << setw(8) << setfill('0') <<
-			    match->get_offset() + transUnit.get_codeOffset();
+			    match->get_offset();
 		    else
-			cerr << "\nError: label \"" << label << "\" undefined.\n";
+		    {
+			match = dataSymTable.lookupByName(&label);
+			if ( match != NULL )
+			    (*outfile) << '@' << hex << setw(8) << setfill('0') <<
+				match->get_offset() + transUnit.get_codeOffset();
+			else
+			    cerr << "\nError: label \"" << label << "\" undefined.\n";
+		    }
 		}
 	    }
 	}
-    
+	else if ( strcmp(filename_extension, ".riscv") == 0 )
+	{
+	    while ( transUnit.get_codeTempFile() >> offset )
+	    {
+		(*outfile) << hex << setw(OFFSET_WIDTH) << setfill('0')
+		    << offset;
+	    
+		// FIXME: Now check for label and convert to an offset
+		// in the machine code
+		while ( transUnit.get_codeTempFile().get(ch) && (isspace(ch)) )
+		    (*outfile).put(ch);
+		if ( ch == '@' )
+		{
+		    cerr << "Label found\n";
+		    transUnit.get_codeTempFile() >> label;
+		    match = codeSymTable.lookupByName(&label);
+		    if ( match != NULL )
+			(*outfile) << '@' << hex << setw(8) << setfill('0') <<
+			    match->get_offset();
+		    else
+		    {
+			match = dataSymTable.lookupByName(&label);
+			if ( match != NULL )
+			    (*outfile) << '@' << hex << setw(8) << setfill('0') <<
+				match->get_offset() + transUnit.get_codeOffset();
+			else
+			    cerr << "\nError: label \"" << label << "\" undefined.\n";
+		    }
+		}
+		else
+		    (*outfile).put(ch);
+		
+		// Copy rest of line
+		while ( transUnit.get_codeTempFile().get(ch) && (ch != '\n') )
+		    (*outfile).put(ch);
+		(*outfile).put(ch);
+	    }
+	}
 	(*outfile) << '\n';
-	mc_offset_t    offset;
+
+	// Data segment
 	while ( transUnit.get_dataTempFile() >> offset )
 	{
 	    (*outfile) << hex << setw(OFFSET_WIDTH) << setfill('0')
@@ -231,7 +277,6 @@ int     assem(const char *prog_name, const char *filename,
 	(*outfile) << "\nData symbols:\n";
 	dataSymTable.dump(outfile);
     }
-    
     return assemStatus;
 }
 
