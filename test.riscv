@@ -32,4 +32,4 @@ main:   addi    x1, x1, -1
 	sw      x4, -1(x1)
 	sh      x4, -1(x1)
 	sb      x4, -1(x1)
-	
+	sd      x4, c

@@ -59,13 +59,13 @@
 #define RISCV_OP_JAL    0x0000006F  // -------------------- ----- 1101111
 
 /*
- *  S-type: offset rs1 rs2 funct3 offset5 opcode
+ *  S-type: offset7 rs1 rs2 funct3 offset5 opcode
  */
 
-#define RISCV_OP_SB     0x00000023  // ------- ----- ----- 000 00000 0100011
-#define RISCV_OP_SH     0x00001023  // ------- ----- ----- 001 00000 0100011
-#define RISCV_OP_SW     0x00002023  // ------- ----- ----- 010 00000 0100011
-#define RISCV_OP_SD     0x00003023  // ------- ----- ----- 011 00000 0100011
+#define RISCV_OP_SB     0x00000023  // ------- ----- ----- 000 ----- 0100011
+#define RISCV_OP_SH     0x00001023  // ------- ----- ----- 001 ----- 0100011
+#define RISCV_OP_SW     0x00002023  // ------- ----- ----- 010 ----- 0100011
+#define RISCV_OP_SD     0x00003023  // ------- ----- ----- 011 ----- 0100011
 
 /*
  *  SB-type: offset rs1 rs2 funct3 offset5 opcode

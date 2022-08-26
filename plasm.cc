@@ -185,6 +185,8 @@ int     assem(const char *prog_name, const char *filename,
      *  FIXME: Add RISC-V support.
      *      All instruction codes exactly 32 bits
      *      @Label precedes hex instruction code
+     *
+     *  FIXME: Factor out some of this code
      */
     
     if ( assemStatus == EX_OK )
@@ -234,20 +236,22 @@ int     assem(const char *prog_name, const char *filename,
 		// in the machine code
 		while ( transUnit.get_codePass1File().get(ch) && (isspace(ch)) )
 		    (*outfile).put(ch);
+		
 		if ( ch == '@' )
 		{
+		    // Offset within text or data segment
 		    mc_offset_t data_offset = 0, code_offset = 0;
+		    // 12 or 20 bit immediate field
+		    int         imm_offset = 0;
 		    uint32_t    machine_code, opcode;
 		    
-		    cerr << "Label found\n";
 		    transUnit.get_codePass1File() >> label;
+		    cerr << "Label found: " << label << '\n';
 		    match = codeSymTable.lookupByName(&label);
 		    if ( match != NULL )
 		    {
 			code_offset = match->get_offset();
 			cerr << "Code offset = " << code_offset << '\n';
-			if ( data_offset > 4096 )
-			    cerr << "Error: Data segment > 4096 bytes.\n";
 		    }
 		    else
 		    {
@@ -256,9 +260,11 @@ int     assem(const char *prog_name, const char *filename,
 			if ( match != NULL )
 			{
 			    data_offset = match->get_offset();
+			    if ( data_offset > 4096 )
+				cerr << "Error: Data segment > 4096 bytes.\n";
 			    cerr << "Data offset = " 
 				 << hex << setw(8) << setfill('0')
-				 << code_offset << '\n';
+				 << data_offset << '\n';
 			}
 			else
 			    cerr << "\nError: label \"" << label << "\" undefined.\n";
@@ -268,6 +274,7 @@ int     assem(const char *prog_name, const char *filename,
 		    // in machine code
 		    transUnit.get_codePass1File() >> machine_code;
 		    opcode = machine_code & 0x7f;
+		    //(*outfile) << " hello ";
 		    switch(opcode)
 		    {
 			case    RISCV_OP_BEQ & 0x7f:    // Any branch
@@ -279,24 +286,40 @@ int     assem(const char *prog_name, const char *filename,
 			
 			// Load instructions: GP-relateive (x3)
 			case    RISCV_OP_LB & 0x7f:
-			    machine_code |= data_offset << 20;
+			    imm_offset = ((int)data_offset - 2048) & 0xfff;
+			    machine_code |= imm_offset << 20;
 			    machine_code |= 3 << 15;            // gp
-			    cerr << "Instruction with machine_code: "
-				 << machine_code << '\n';
 			    (*outfile) << hex << setw(8) << setfill('0')
 				<< machine_code;
+
+			    // Debug
+			    cerr << "Immediate offset = " << imm_offset << '\n';
+			    cerr << "Load instruction with machine_code: "
+				 << machine_code << '\n';
+			    binary_output(machine_code);
+			    cerr << '\n';
+			    break;
+			
+			case    RISCV_OP_SB & 0x7f:     // Any store
+			    imm_offset = ((int)data_offset - 2048) & 0xfff;
+			    // S-type: offset7 rs1 rs2 funct3 offset5 opcode
+			    // Offset5
+			    machine_code |= (imm_offset & 0x1f) << 7;
+			    // Offset7: Already shifted 5, so 25 - 5 = 20
+			    machine_code |= (imm_offset & 0xfe0) << 20;
+			    machine_code |= 3 << 15;            // gp = x3
+			    (*outfile) << hex << setw(8) << setfill('0')
+				<< machine_code;
+
+			    // Debug
+			    cerr << "Immediate offset = " << imm_offset << '\n';
+			    cerr << "Store instruction with machine_code: "
+				 << machine_code << '\n';
 			    binary_output(machine_code);
 			    cerr << '\n';
 			    break;
 			
 			case    RISCV_OP_JALR & 0x7f:   // PC-relative
-			    // Debug
-			    (*outfile) << '@'
-				    << hex << setw(8) << setfill('0')
-				    << match->get_offset();
-			    break;
-			
-			case    RISCV_OP_SB & 0x7f:     // Any store
 			    // Debug
 			    (*outfile) << '@'
 				    << hex << setw(8) << setfill('0')
@@ -317,12 +340,12 @@ int     assem(const char *prog_name, const char *filename,
 		    }
 		}
 		else
-		    (*outfile).put(ch);
+		    (*outfile).put(ch); // First char of machine code
 		
 		// Copy rest of line
 		while ( transUnit.get_codePass1File().get(ch) && (ch != '\n') )
 		    (*outfile).put(ch);
-		(*outfile).put(ch);
+		(*outfile).put(ch); // Newline
 	    }
 	}
 	(*outfile) << '\n';

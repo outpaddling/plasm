@@ -42,7 +42,7 @@ void    TranslationUnit :: openFiles(const char *sourceName)
     }
 
     strlcpy(dataFileName, sourceName, PATH_MAX);
-    strlcat(dataFileName, ".pass1-code", PATH_MAX);
+    strlcat(dataFileName, ".pass1-data", PATH_MAX);
     dataPass1File.open(dataFileName,
 	std::fstream::in | std::fstream::out | std::fstream::trunc);
     if ( codePass1File.fail() )
