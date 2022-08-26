@@ -252,6 +252,8 @@ int     assem(const char *prog_name, const char *filename,
 		    {
 			code_offset = match->get_offset();
 			cerr << "Code offset = " << code_offset << '\n';
+			if ( code_offset > 8192 )
+			    cerr << "Error: Branch offset > 8192 bytes.\n";
 		    }
 		    else
 		    {
@@ -278,10 +280,21 @@ int     assem(const char *prog_name, const char *filename,
 		    switch(opcode)
 		    {
 			case    RISCV_OP_BEQ & 0x7f:    // Any branch
+			    // PC-relative, stored offset is multiplied
+			    // by 2 before branch
+			    // ------------  ----- 000 ----- 1100011
+			    imm_offset =
+				((int)(code_offset >> 1) - 2048) & 0xfff;
+			    machine_code |= imm_offset << 20;
+			    (*outfile) << hex << setw(8) << setfill('0')
+				<< machine_code;
+
 			    // Debug
-			    (*outfile) << '@'
-				    << hex << setw(8) << setfill('0')
-				    << match->get_offset();
+			    cerr << "Immediate offset = " << imm_offset << '\n';
+			    cerr << "Branch instruction with machine_code: "
+				 << machine_code << '\n';
+			    binary_output(machine_code);
+			    cerr << '\n';
 			    break;
 			
 			// Load instructions: GP-relateive (x3)

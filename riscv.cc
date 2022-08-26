@@ -343,8 +343,7 @@ int     statement_riscv :: translateLoad(TranslationUnit *transUnit, string::siz
 	else if ( mode == RISCV_MODE_LABEL )
 	{
 	    // Look up label and use offset-2048(gp)
-	    // Do in second pass to allow forward refs?
-	    cerr << "translateLoad(): Labels are not yet supported.\n";
+	    // Do in second pass to allow forward refs
 	}
 	else
 	{
@@ -364,6 +363,7 @@ int     statement_riscv :: translateStype(TranslationUnit *transUnit, string::si
     string::size_type   start_operand,
 			end_operand;
     uint64_t            bits = 0, immediate7, immediate5, reg_num;
+    int                 mode;
 
     // First operand: rd
     start_operand = sourceCode.find_first_not_of(" \t\n", startPos);
@@ -399,21 +399,29 @@ int     statement_riscv :: translateStype(TranslationUnit *transUnit, string::si
 	text_operand = sourceCode.substr(start_operand, end_operand-start_operand);
     
 	// Validate operand using derived class?
-	if ( translateOperand(transUnit, text_operand, &bits) != RISCV_MODE_OFFSET )
+	mode = translateOperand(transUnit, text_operand, &bits);
+	if ( mode == RISCV_MODE_OFFSET )
+	{
+	    // Bits contains immediate:rd in rightmost bits
+	    reg_num = (bits & 0x1f) << 20;          // rs2 field
+	    // xxxxxxxxxxxxxxxiiiiiiiiiiiirrrrr     // bits
+	    // iiiiiiirrrrrxxxxxxxxiiiiixxxxxxx     // S-type
+	    // 00000000000000011111110000000000     // Upper 7 to funct7 field
+	    immediate7 = (bits & 0x1fc00) << 15;
+	    // 00000000000000000000001111100000     // Lower 5 to rd field
+	    immediate5 = (bits & 0x3e0) << 2;
+	    machineInstruction |= reg_num | immediate7 | immediate5;
+	}
+	else if ( mode == RISCV_MODE_LABEL )
+	{
+	    // Look up label and use offset-2048(gp)
+	    // Do in second pass to allow forward refs
+	}
+	else
 	{
 	    transUnit->errorMessage("Second operand is not offset.", sourceCode);
 	    return STATEMENT_INVALID_OPERAND;
 	}
-	
-	// Bits contains immediate:rd in rightmost bits
-	reg_num = (bits & 0x1f) << 20;          // rs2 field
-	// xxxxxxxxxxxxxxxiiiiiiiiiiiirrrrr     // bits
-	// iiiiiiirrrrrxxxxxxxxiiiiixxxxxxx     // S-type
-	// 00000000000000011111110000000000     // Upper 7 to funct7 field
-	immediate7 = (bits & 0x1fc00) << 15;
-	// 00000000000000000000001111100000     // Lower 5 to rd field
-	immediate5 = (bits & 0x3e0) << 2;
-	machineInstruction |= reg_num | immediate7 | immediate5;
     }
 
     return STATEMENT_OK;
