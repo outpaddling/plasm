@@ -6,9 +6,10 @@ PLASM is a portable assembler engine designed to assemble any source language
 to machine language given a class that handles the syntax and instruction
 format.
 
-It was developed primarily as a teaching tool for use with EPC, the
-Educational Personal Computer simulator, and PAPP, the Portable
-Assembly-language Preprocessor.
+It was developed primarily as a teaching tool for use with
+[EPC, the Educational Personal Computer](https://github.com/outpaddling/epc)
+simulator, and
+[PAPP (Portable Assembly-language Preprocessor)](Https://github.com/outpaddling/papp).
 
 ## Design and Implementation
 
