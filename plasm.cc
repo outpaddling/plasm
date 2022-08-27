@@ -280,6 +280,7 @@ int     assem(const char *prog_name, const char *filename,
 		    switch(opcode)
 		    {
 			case    RISCV_OP_BEQ & 0x7f:    // Any branch
+			    // FIXME: Make sure stored offset is 1/2
 			    // PC-relative, stored offset is multiplied
 			    // by 2 before branch
 			    // ------------  ----- 000 ----- 1100011

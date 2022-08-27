@@ -18,6 +18,7 @@ class statement_riscv : public statement
 	int     translateItype(TranslationUnit *transUnit, string::size_type endLabel);
 	int     translateLoad(TranslationUnit *transUnit, string::size_type endLabel);
 	int     translateStype(TranslationUnit *transUnit, string::size_type endLabel);
+	int     translateSBtype(TranslationUnit *transUnit, string::size_type endLabel);
 	int     translateOpcode(TranslationUnit *transUnit);
 	int     translateOperand(TranslationUnit *transUnit, string &operand, uint64_t *bits);
 	bool    isComment(string::size_type start_pos);

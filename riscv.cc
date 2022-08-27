@@ -119,6 +119,7 @@ int     statement_riscv :: translateInstruction(TranslationUnit *transUnit,
 	case    RISCV_OP_BGE:
 	case    RISCV_OP_BLTU:
 	case    RISCV_OP_BGEU:
+	    translateSBtype(transUnit, startPos);
 	    break;
 	default:
 	    transUnit->errorMessage("Invalid opcode", sourceCode);
@@ -347,7 +348,7 @@ int     statement_riscv :: translateLoad(TranslationUnit *transUnit, string::siz
 	}
 	else
 	{
-	    transUnit->errorMessage("Second operand is not offset", sourceCode);
+	    transUnit->errorMessage("Second operand is not offset or label", sourceCode);
 	    return STATEMENT_INVALID_OPERAND;
 	}
     }
@@ -365,7 +366,7 @@ int     statement_riscv :: translateStype(TranslationUnit *transUnit, string::si
     uint64_t            bits = 0, immediate7, immediate5, reg_num;
     int                 mode;
 
-    // First operand: rd
+    // First operand: rs1
     start_operand = sourceCode.find_first_not_of(" \t\n", startPos);
     if ( (start_operand == string::npos) || isComment(start_operand) )
     {
@@ -386,7 +387,7 @@ int     statement_riscv :: translateStype(TranslationUnit *transUnit, string::si
 	machineInstruction |= bits << 15;   // To rs1 field, not rd
     }
 
-    // Second operand: address
+    // Second operand: address offset(rs2)
     start_operand = sourceCode.find_first_not_of(" \t,", end_operand);
     if ( (start_operand == string::npos) || isComment(start_operand) )
     {
@@ -419,7 +420,114 @@ int     statement_riscv :: translateStype(TranslationUnit *transUnit, string::si
 	}
 	else
 	{
-	    transUnit->errorMessage("Second operand is not offset.", sourceCode);
+	    transUnit->errorMessage("Second operand is not offset or label.", sourceCode);
+	    return STATEMENT_INVALID_OPERAND;
+	}
+    }
+
+    return STATEMENT_OK;
+}
+
+
+int     statement_riscv :: translateSBtype(TranslationUnit *transUnit, string::size_type startPos)
+
+{
+    string              text_operand;
+    string::size_type   start_operand,
+			end_operand;
+    uint64_t            bits = 0, immediate7, immediate5, reg_num;
+    int                 mode;
+
+    cerr << "Translating SB type.\n";
+    
+    // FIXME: Factor out sections like this from all translateXtype()
+    // functions.  One function taking operand #, expected operand type,
+    // and field position?
+    
+    // First operand: rs1
+    start_operand = sourceCode.find_first_not_of(" \t\n", startPos);
+    if ( (start_operand == string::npos) || isComment(start_operand) )
+    {
+	transUnit->errorMessage("Expected first operand.", sourceCode);
+	return STATEMENT_OPERAND_COUNT;
+    }
+    else
+    {
+	end_operand = sourceCode.find_first_of(" \t,", start_operand);
+	text_operand = sourceCode.substr(start_operand, end_operand-start_operand);
+
+	cerr << "First text_operand = " << text_operand << '\n';
+    
+	// Validate operand using derived class?
+	if ( translateOperand(transUnit, text_operand, &bits) != RISCV_MODE_REG_DIRECT )
+	{
+	    transUnit->errorMessage("First operand is not a register.", sourceCode);
+	    return STATEMENT_INVALID_OPERAND;
+	}
+	machineInstruction |= bits << 15;   // To rs1 field, not rd
+    }
+
+    // Second operand: rs2
+    // FIXME: Why doesn't translateRtype() need +1?
+    start_operand = sourceCode.find_first_not_of(" \t\n", end_operand + 1);
+    if ( (start_operand == string::npos) || isComment(start_operand) )
+    {
+	transUnit->errorMessage("Expected second operand.", sourceCode);
+	return STATEMENT_OPERAND_COUNT;
+    }
+    else
+    {
+	end_operand = sourceCode.find_first_of(" \t,", start_operand);
+	text_operand = sourceCode.substr(start_operand, end_operand-start_operand);
+
+	cerr << "Second text_operand = " << text_operand << '\n';
+    
+	// Validate operand using derived class?
+	if ( translateOperand(transUnit, text_operand, &bits) != RISCV_MODE_REG_DIRECT )
+	{
+	    transUnit->errorMessage("Second operand is not a register.", sourceCode);
+	    return STATEMENT_INVALID_OPERAND;
+	}
+	machineInstruction |= bits << 7;   // To rs1 field, not rd
+    }
+
+    // Third operand: address
+    start_operand = sourceCode.find_first_not_of(" \t,", end_operand);
+    if ( (start_operand == string::npos) || isComment(start_operand) )
+    {
+	transUnit->errorMessage("Expected third operand.", sourceCode);
+	return STATEMENT_OPERAND_COUNT;
+    }
+    else
+    {
+	end_operand = sourceCode.find_first_of(" \t,", start_operand);
+	text_operand = sourceCode.substr(start_operand, end_operand-start_operand);
+	
+	cerr << "text_operand = " << text_operand << '\n';
+    
+	// Validate operand using derived class?
+	mode = translateOperand(transUnit, text_operand, &bits);
+	if ( mode == RISCV_MODE_OFFSET )
+	{
+	    // Bits contains immediate:rd in rightmost bits
+	    // FIXME: Stored offset should be 1/2 actual
+	    reg_num = (bits & 0x1f) << 20;          // rs2 field
+	    // xxxxxxxxxxxxxxxiiiiiiiiiiiirrrrr     // bits
+	    // iiiiiiirrrrrxxxxxxxxiiiiixxxxxxx     // S-type
+	    // 00000000000000011111110000000000     // Upper 7 to funct7 field
+	    immediate7 = (bits & 0x1fc00) << 15;
+	    // 00000000000000000000001111100000     // Lower 5 to rd field
+	    immediate5 = (bits & 0x3e0) << 2;
+	    machineInstruction |= reg_num | immediate7 | immediate5;
+	}
+	else if ( mode == RISCV_MODE_LABEL )
+	{
+	    // Look up label and use offset-2048(gp)
+	    // Do in second pass to allow forward refs
+	}
+	else
+	{
+	    transUnit->errorMessage("Third operand is not offset or label.", sourceCode);
 	    return STATEMENT_INVALID_OPERAND;
 	}
     }
