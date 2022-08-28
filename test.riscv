@@ -34,3 +34,5 @@ main:   addi    x1, x1, -1
 	sb      x4, -1(x1)
 loop:   sd      x4, c
 	beq     x4, x0, loop
+	jal     func
+func:   jalr    0(x1)

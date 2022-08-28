@@ -31,8 +31,8 @@
 #define RISCV_OP_LHU    0x00005003  // ------------  ----- 101 ----- 0000011
 #define RISCV_OP_LWU    0x00006003  // ------------  ----- 110 ----- 0000011
 
-#define RISCV_OP_FENCE  0x0000600F  // ------------  ----- 000 ----- 0001111
-#define RISCV_OP_FENCEI 0x0000100F  // ------------  ----- 001 ----- 0001111
+#define RISCV_OP_FENCE  0x0000600f  // ------------  ----- 000 ----- 0001111
+#define RISCV_OP_FENCEI 0x0000100f  // ------------  ----- 001 ----- 0001111
 
 #define RISCV_OP_ADDI   0x00000013  // ------------  ----- 000 ----- 0010011
 #define RISCV_OP_SLLI   0x00001013  // 0000000-----  ----- 001 ----- 0010011
@@ -56,7 +56,7 @@
  *  UJ offset(20) rd opcode
  */
 
-#define RISCV_OP_JAL    0x0000006F  // -------------------- ----- 1101111
+#define RISCV_OP_JAL    0x0000006f  // -------------------- ----- 1101111
 
 /*
  *  S-type: offset7 rs1 rs2 funct3 offset5 opcode
