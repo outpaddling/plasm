@@ -6,6 +6,7 @@ using namespace std;
 
 #ifdef __linux__
 #define strlcpy(dest, source, size) strcpy(dest, source)
+#define strlcat(dest, source, size) strcat(dest, source)
 #endif
 
 #define MAX_LINE_LEN    1024

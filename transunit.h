@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <stdint.h>
+#include <limits.h>     // PATH_MAX on Alma8
 
 using namespace std;
 

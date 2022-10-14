@@ -6,6 +6,7 @@
 #include <sysexits.h>
 #include <unistd.h>
 #include "transunit.h"
+#include "plasm.h"
 
 /***************************************************************************
  *  Description:
