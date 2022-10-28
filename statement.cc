@@ -77,20 +77,20 @@ void    statement :: processDirective(TranslationUnit *transUnit,
      *  search on the strings.
      */
     
-    if ( textOpcode == ".byte" )
-	currentDataType = TYPE_BYTE;
+    if ( textOpcode == ".int8" )
+	currentDataType = TYPE_INT8;
     else if ( textOpcode == ".string" )
 	currentDataType = TYPE_STRING;
-    else if ( textOpcode == ".short" )
-	currentDataType = TYPE_SHORT;
-    else if ( textOpcode == ".long" )
-	currentDataType = TYPE_LONG;
-    else if ( textOpcode == ".quad" )
-	currentDataType = TYPE_QUAD;
-    else if ( textOpcode == ".float" )
-	currentDataType = TYPE_FLOAT;
-    else if ( textOpcode == ".double" )
-	currentDataType = TYPE_DOUBLE;
+    else if ( textOpcode == ".int16" )
+	currentDataType = TYPE_INT16;
+    else if ( textOpcode == ".int32" )
+	currentDataType = TYPE_INT32;
+    else if ( textOpcode == ".int64" )
+	currentDataType = TYPE_INT64;
+    else if ( textOpcode == ".float32" )
+	currentDataType = TYPE_FLOAT32;
+    else if ( textOpcode == ".float64" )
+	currentDataType = TYPE_FLOAT64;
     else
 	transUnit->errorMessage("Invalid directive", sourceCode);
     
@@ -154,7 +154,7 @@ void    statement :: processInitializers(TranslationUnit *transUnit,
 
 	switch(currentDataType)
 	{
-	    case    TYPE_BYTE:
+	    case    TYPE_INT8:
 		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
 		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
@@ -165,7 +165,7 @@ void    statement :: processInitializers(TranslationUnit *transUnit,
 		}
 		break;
 	    
-	    case    TYPE_SHORT:
+	    case    TYPE_INT16:
 		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
 		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
@@ -176,7 +176,7 @@ void    statement :: processInitializers(TranslationUnit *transUnit,
 		}
 		break;
 	    
-	    case    TYPE_LONG:
+	    case    TYPE_INT32:
 		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
 		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
@@ -187,7 +187,7 @@ void    statement :: processInitializers(TranslationUnit *transUnit,
 		}
 		break;
 	    
-	    case    TYPE_QUAD:
+	    case    TYPE_INT64:
 		//sscanf(val_text.c_str(), "%"SCNu64, &integer);
 		integer = strtoull(val_text.c_str(), &end, 10);
 		for (c = 0; c < repeat; ++c)
@@ -198,7 +198,7 @@ void    statement :: processInitializers(TranslationUnit *transUnit,
 		}
 		break;
 	    
-	    case    TYPE_FLOAT:
+	    case    TYPE_FLOAT32:
 		sscanf(val_text.c_str(), "%f", &float_val);
 		for (c = 0; c < repeat; ++c)
 		{
@@ -208,7 +208,7 @@ void    statement :: processInitializers(TranslationUnit *transUnit,
 		}
 		break;
 	    
-	    case    TYPE_DOUBLE:
+	    case    TYPE_FLOAT64:
 		sscanf(val_text.c_str(), "%lf", &double_val);
 		for (c = 0; c < repeat; ++c)
 		{

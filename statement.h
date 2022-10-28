@@ -23,13 +23,13 @@ using namespace std;
 #define STATEMENT_EXPECTED_REGISTER     9
 #define STATEMENT_EXPECTED_OFFSET       10
 
-#define TYPE_BYTE   1
-#define TYPE_SHORT  2
-#define TYPE_LONG   3
-#define TYPE_QUAD   4
-#define TYPE_FLOAT  5
-#define TYPE_DOUBLE 6
-#define TYPE_STRING 7
+#define TYPE_INT8       1
+#define TYPE_INT16      2
+#define TYPE_INT32      3
+#define TYPE_INT64      4
+#define TYPE_FLOAT32    5
+#define TYPE_FLOAT64    6
+#define TYPE_STRING     7
 
 typedef unsigned long   statement_status_t;
 
@@ -84,7 +84,7 @@ class statement
     private:
 
 	int             machineCodeCols;    // For alignment of source in list
-	int             currentDataType;    // Most recent .byte, etc. directive
+	int             currentDataType;    // Most recent .int8, etc. directive
 	mc_offset_t     sourceLines;        // Comments above + label + code
 	mc_offset_t     endLabel;
 	
