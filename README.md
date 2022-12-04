@@ -116,7 +116,7 @@ Community support for pkgsrc is available through the
 
 ### Building plasm locally
 
-Below are cave man install instructions for development purposes, not
+Below are caveman install instructions for development purposes, not
 recommended for regular use.
 plasm depends on [papp](https://github.com/outpaddling/papp).
 Install papp before attempting to build plasm.
