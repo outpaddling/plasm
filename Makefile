@@ -150,11 +150,9 @@ realclean: clean
 
 install: all
 	${MKDIR} -p ${DESTDIR}${PREFIX}/bin \
-		    ${DESTDIR}${PREFIX}/include \
-		    ${DESTDIR}${PREFIX}/man/man1 \
-		    ${DESTDIR}${PREFIX}/include/plasm
+		    ${DESTDIR}${PREFIX}/include/plasm \
+		    ${DESTDIR}${MANPREFIX}/man/man1
 	${INSTALL} -m 0555 ${BIN} ${DESTDIR}${PREFIX}/bin
 	${INSTALL} -m 0555 plasm ${DESTDIR}${PREFIX}/bin
 	${INSTALL} -m 0444 *-bits.h ${DESTDIR}${PREFIX}/include/plasm
 	${INSTALL} -m 0444 ${MAN}.man ${DESTDIR}${MANPREFIX}/man/man1/${MAN}.1
-
